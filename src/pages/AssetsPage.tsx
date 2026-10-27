@@ -24,6 +24,7 @@ import { useDemoData } from "../state/DemoDataProvider";
 import { useAssetSelection } from "../state/useAssetSelection";
 import { StatusBadge } from "../components/StatusBadge";
 import { PageHeading } from "../components/PageHeading";
+import { SimulationBadge } from "../components/DemoControls";
 const pageSize = 8;
 export function AssetsPage() {
   const { snapshot, evaluated, total } = useDemoData();
@@ -74,7 +75,7 @@ export function AssetsPage() {
           </div>
           <span className="read-only-label">
             <ShieldCheck size={14} />
-            Read-only demo
+            Synthetic equipment
           </span>
         </div>
         <div className="filters">
@@ -216,6 +217,7 @@ export function AssetsPage() {
                             {asset.id}
                           </button>
                           <span>{asset.name}</span>
+                          <SimulationBadge assetId={asset.id} />
                         </div>
                       </div>
                     </td>

@@ -1,5 +1,5 @@
 import { ChevronRight, CircleAlert, Radio, TriangleAlert } from "lucide-react";
-import type { AssetEvent } from "../domain/types";
+import type { DisplayAlert } from "../simulation/types";
 import { useDemoData } from "../state/DemoDataProvider";
 import { useAssetSelection } from "../state/useAssetSelection";
 import { categoryMetadata } from "../lib/categories";
@@ -9,10 +9,10 @@ export function AlertRow({
   event,
   expanded = false,
 }: {
-  event: Readonly<AssetEvent>;
+  event: Readonly<DisplayAlert>;
   expanded?: boolean;
 }) {
-  const { snapshot, getAsset } = useDemoData();
+  const { snapshot, getAsset, getAssetSimulation } = useDemoData();
   const { openAsset } = useAssetSelection();
   const asset = getAsset(event.assetId);
   const location = snapshot.locations.find(
@@ -30,13 +30,18 @@ export function AlertRow({
       record.nextServiceDate < snapshot.now.slice(0, 10),
   );
   const kind =
-    asset?.monitoring.connectivity === "Unavailable"
+    event.kind ??
+    (asset?.monitoring.connectivity === "Unavailable"
       ? "Monitoring unavailable"
       : overdue
         ? "Maintenance requirement"
         : asset?.monitoring.method === "Manual inspection"
           ? "Inspection finding"
-          : "Equipment condition";
+          : "Equipment condition");
+  const lastConfirmed =
+    event.active &&
+    event.kind === "Equipment condition" &&
+    getAssetSimulation(event.assetId).lastConfirmedCritical;
   return (
     <button
       className={`alert-row ${expanded ? "expanded-alert" : ""}`}
@@ -48,6 +53,11 @@ export function AlertRow({
       </span>
       <span className="alert-copy">
         <strong>{event.title}</strong>
+        {lastConfirmed && (
+          <span className="confirmation-note">
+            Last confirmed · currently unverified
+          </span>
+        )}
         <span>
           <b className="mono">{event.assetId}</b>
           <i />
@@ -70,6 +80,14 @@ export function AlertRow({
                 : "Location unavailable"}
             </span>
             <span className="alert-type">{kind}</span>
+            {event.origin === "simulation" && (
+              <span className="simulation-tag">
+                Simulated · #{event.sequence}
+                {!event.active
+                  ? ` · resolved at ${time(event.resolvedAt!)} BDT`
+                  : ""}
+              </span>
+            )}
           </>
         )}
       </span>
@@ -81,7 +99,7 @@ export function AlertRow({
             {event.severity === "Info" ? "Information" : event.severity}
           </span>
           <span className="active-event-label">
-            {event.active ? "Active" : "Recorded"}
+            {event.active ? "Active" : "Resolved"}
           </span>
         </span>
       )}

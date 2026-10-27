@@ -18,6 +18,7 @@ import { useAssetSelection } from "../state/useAssetSelection";
 import { AlertRow } from "../components/AlertRow";
 import { StatusBadge } from "../components/StatusBadge";
 import { PageHeading } from "../components/PageHeading";
+import { DemoControls, SimulationBadge } from "../components/DemoControls";
 export function DashboardPage() {
   const data = useDemoData();
   const { activeEvents } = data;
@@ -112,6 +113,7 @@ export function DashboardPage() {
           </button>
         ))}
       </section>
+      <DemoControls />
       <div className="overview-grid">
         <section className="panel condition-overview">
           <div className="panel-heading">
@@ -273,6 +275,7 @@ export function DashboardPage() {
               <span className="priority-identity">
                 <strong className="mono">{asset.id}</strong>
                 <span>{asset.name}</span>
+                <SimulationBadge assetId={asset.id} />
               </span>
               <StatusBadge condition={asset.condition} />
               <span className="priority-reason">{asset.reasons[0]}</span>

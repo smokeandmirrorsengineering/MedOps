@@ -9,10 +9,13 @@ import {
   Wrench,
   X,
 } from "lucide-react";
-import type { Asset, Evaluation, Snapshot } from "../domain/types";
+import type { Asset, AssetEvent, Evaluation, Snapshot } from "../domain/types";
 import { latestReading } from "../domain/evaluateAsset";
 import { date, time } from "../lib/format";
 import { StatusBadge } from "./StatusBadge";
+import { ScenarioActions, SimulationBadge } from "./DemoControls";
+import { useDemoData } from "../state/DemoDataProvider";
+import { isConnectionAsset } from "../simulation/types";
 
 export function AssetDrawer({
   asset,
@@ -25,6 +28,8 @@ export function AssetDrawer({
 }) {
   const panel = useRef<HTMLDivElement>(null);
   const close = useRef<HTMLButtonElement>(null);
+  const { history, seedEvents, getAssetSimulation } = useDemoData();
+  const scenario = getAssetSimulation(asset.id);
   const closeAction = useRef(onClose);
   useEffect(() => {
     closeAction.current = onClose;
@@ -33,9 +38,17 @@ export function AssetDrawer({
   const maintenance = snapshot.maintenance.filter(
     (m) => m.assetId === asset.id,
   );
-  const events = snapshot.events
-    .filter((e) => e.assetId === asset.id)
-    .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
+  const events: (AssetEvent & { sequence?: number })[] = [
+    ...seedEvents.filter((event) => event.assetId === asset.id),
+    ...history
+      .filter((event) => event.assetId === asset.id)
+      .map((event) => ({ ...event, active: false })),
+  ];
+  events.sort(
+    (a, b) =>
+      Date.parse(b.timestamp) - Date.parse(a.timestamp) ||
+      (b.sequence ?? 0) - (a.sequence ?? 0),
+  );
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
     const scroll = document.body.style.overflow;
@@ -64,7 +77,11 @@ export function AssetDrawer({
     return () => {
       document.body.style.overflow = scroll;
       document.removeEventListener("keydown", handleKey);
-      previous?.focus();
+      if (previous?.isConnected) previous.focus();
+      else
+        document
+          .querySelector<HTMLElement>("main h1")
+          ?.focus({ preventScroll: true });
     };
   }, []);
 
@@ -104,6 +121,7 @@ export function AssetDrawer({
           </div>
           <div className="drawer-meta">
             <StatusBadge condition={asset.condition} />
+            <SimulationBadge assetId={asset.id} />
             <span className="operating">
               <span
                 className={
@@ -119,6 +137,13 @@ export function AssetDrawer({
             className={`condition-panel ${asset.condition.toLowerCase()}`}
           >
             <h3>Condition assessment</h3>
+            {scenario.lastConfirmedCritical && (
+              <p className="critical-unverified">
+                Critical — last confirmed at {time(scenario.confirmedAt!)} BDT.
+                Monitoring is unavailable; the current condition is not
+                verified.
+              </p>
+            )}
             <ul>
               {asset.reasons.map((reason) => (
                 <li key={reason}>{reason}</li>
@@ -126,6 +151,17 @@ export function AssetDrawer({
             </ul>
             <p>Evaluated at {time(snapshot.now)} BDT · Fictional demo rules</p>
           </section>
+          {isConnectionAsset(asset.id) && (
+            <section className="detail-section drawer-demo-actions">
+              <h3>Simulated evidence controls</h3>
+              <p className="section-note">
+                Demo evidence only. Clearing an alarm and restoring monitoring
+                are independent actions; neither certifies physical equipment
+                safety.
+              </p>
+              <ScenarioActions assetId={asset.id} />
+            </section>
+          )}
           <section className="detail-section">
             <h3>
               <MapPin size={16} />
@@ -172,20 +208,38 @@ export function AssetDrawer({
                     asset.id,
                     point.id,
                   );
+                  const verified =
+                    reading?.quality === "Good" &&
+                    reading.value !== null &&
+                    asset.monitoring.connectivity !== "Unavailable";
+                  const lastKnown =
+                    !verified &&
+                    reading?.value !== null &&
+                    reading?.value !== undefined;
                   return (
-                    <div className="reading-card" key={point.id}>
+                    <div
+                      className={`reading-card ${lastKnown ? "last-known" : ""}`}
+                      key={point.id}
+                    >
                       <span>{point.label}</span>
                       <strong>
                         {reading?.value ?? "—"} <small>{point.unit}</small>
                       </strong>
-                      <span
-                        className={`quality ${reading?.quality === "Good" ? "good" : ""}`}
-                      >
+                      <span className="reading-validity">
+                        {lastKnown
+                          ? "Last-known value · not currently verified"
+                          : verified
+                            ? asset.monitoring.method === "Manual inspection"
+                              ? "Recorded inspection"
+                              : "Current simulated reading"
+                            : "No usable measurement"}
+                      </span>
+                      <span className={`quality ${verified ? "good" : ""}`}>
                         {reading?.quality ?? "Missing"} quality
                       </span>
                       <span className="reading-time">
                         {reading
-                          ? `${time(reading.timestamp)} BDT`
+                          ? `${time(reading.timestamp)} BDT${lastKnown ? " · last-known report" : ""}`
                           : "No report"}
                       </span>
                     </div>
@@ -287,7 +341,11 @@ export function AssetDrawer({
                   <p>{event.description}</p>
                   <small>
                     {date(event.timestamp)} · {time(event.timestamp)} BDT ·{" "}
-                    {event.active ? "Open" : "Recorded"}
+                    {event.sequence
+                      ? `Recorded · #${event.sequence}`
+                      : event.active
+                        ? "Open seed alarm"
+                        : "Recorded"}
                   </small>
                 </div>
               ))}

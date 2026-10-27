@@ -158,7 +158,7 @@ export function AppLayout() {
               <br />
               they interrupt care.
             </p>
-            <small>v0.1B · Multi-page workspace</small>
+            <small>v0.1C · Interactive demo</small>
           </div>
           <div className="profile">
             <span className="avatar">EN</span>
@@ -230,7 +230,7 @@ export function AppLayout() {
             </span>
             <span>
               <Check size={13} />
-              All data is synthetic · v0.1B
+              All data is synthetic · v0.1C
             </span>
           </footer>
           <p className="safety-note">

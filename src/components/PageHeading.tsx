@@ -19,7 +19,7 @@ export function PageHeading({
           Workspace <ChevronRight size={12} />
           {page}
         </div>
-        <h1>
+        <h1 tabIndex={-1}>
           {title}
           <span className="title-dot">.</span>
         </h1>

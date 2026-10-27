@@ -28,7 +28,9 @@ export function orderAssets<T extends Asset & { condition: Condition }>(
       a.id.localeCompare(b.id, "en"),
   );
 }
-export function orderEvents<T extends AssetEvent & { sequence?: number }>(events: readonly T[]): T[] {
+export function orderEvents<T extends AssetEvent & { sequence?: number }>(
+  events: readonly T[],
+): T[] {
   return [...events].sort(
     (a, b) =>
       severityPriority[a.severity] - severityPriority[b.severity] ||
