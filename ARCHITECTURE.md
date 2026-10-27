@@ -1,4 +1,4 @@
-# MedOps architecture — v0.1B
+# MedOps architecture — v0.1C
 
 ## The equipment register and its evidence
 
@@ -45,16 +45,49 @@ Fictional limits are attached to monitoring points rather than written in dashbo
 ```text
 demo.ts (deterministic records + simulation clock)
     → provider.ts (DataProvider.getSnapshot)
-    → DemoDataProvider.tsx (one snapshot in React state)
+    → DemoDataProvider.tsx (immutable seed + one simulation useReducer)
+        → simulation/model.ts (apply current overlay evidence)
         → selectors.ts (evaluate physical assets and derive counts)
         → shared context: snapshot, evaluated, counts, total, activeEvents, getAsset
             → DashboardPage / AssetsPage / AlertsPage
             → one AssetDrawer in AppLayout
 ```
 
-The equipment/data/domain modules remain unchanged from v0.1A. `DemoDataProvider` initializes the existing mock provider once for the shared application state. `useMemo` derives the evaluated assets, counts, sorted active events and asset lookup from that snapshot. The context exposes read-only values through `useDemoData()`; it exposes no setter or simulation actions. Pages do not create their own snapshots. React Strict Mode may call the pure initializer twice during development checks, but all rendered pages consume the same retained state.
+The data and domain modules remain unchanged. `DemoDataProvider` retains the original mock-provider snapshot and uses one typed `useReducer` for simulation actions. Each reducer transition atomically changes scenario state, history, the sequence counter and metadata in one overlay. `effectiveSnapshot` applies that overlay without mutating seed arrays. `useMemo` derives evaluations, counts, alert lists and asset lookups; calculated KPIs are never separately stored. The context exposes derived data and typed `dispatch` through `useDemoData()`. All pages and the one shared drawer observe the same committed state. Strict Mode's development checks are safe because the reducer is pure and storage writes happen in an effect.
 
 This is like several SCADA display pages reading the same tag database: changing pages does not create another equipment register. KPI totals always represent the full register; the Assets summary and footer report filtered matches separately.
+
+## Current evidence versus event history
+
+The existing evaluator treats seed events marked active as unresolved alarm/inspection evidence. Those seed events remain intact. The simulation model keeps three representations separate:
+
+| Representation            | Purpose                                                              | Used to evaluate condition?                                      |
+| ------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Current overlay scenarios | Active AHU fault and connection losses, plus targeted reading caches | Yes, through an effective snapshot                               |
+| Current scenario alarm    | One active Critical alarm while the AHU fault is unresolved          | Yes; preserves known Critical evidence during communication loss |
+| `SimulationEvent` history | Fault activated/cleared and communication lost/restored transitions  | No; these records deliberately have no `active` flag             |
+
+`scenarioAlerts` derives display-only active/resolved alarm lifecycles from paired transitions. It does not feed these historical rows back into the evaluator. The seven active seed alerts and these display alerts are combined once, avoiding duplicate simulation alarms. Clearing removes current fault evidence and resolves its display alert; old Critical activation logs remain visible without affecting condition. Drawer history combines seed records and generated logs, excluding the extra current-alarm projection so activation is shown only once.
+
+Think of current alarms as an annunciator panel and history as the sequence-of-events printer. An entry remaining on the printer does not mean its alarm is still asserted.
+
+## Scenarios and last-known values
+
+AHU-OT-01's fault sets its fictional filter-pressure point to 450 Pa and establishes one unresolved Critical alarm while the source is available. Clear Fault removes that current fault evidence. Operating state and immutable equipment identity do not change.
+
+Connection loss normally targets FRG-BB-01; AHU-OT-01 is also eligible for the fault-then-data-loss demonstration. On loss, the reducer captures only that asset's last-known normalized readings, retaining numeric values and timestamps. Effective connectivity becomes Unavailable and reading quality becomes the existing `Unavailable` type. The drawer labels these values last known and not currently verified.
+
+A previously confirmed AHU Critical alarm remains active after loss. The evaluator's existing priority keeps it Critical, and reasons/UI explicitly say **last confirmed, currently unverified**. Restoring communication removes the connection overlay without clearing the fault. Clearing while offline removes the Critical alarm but keeps the reading cache, yielding Unknown—even if that cache contains the old 450 Pa measurement. That value has Unavailable quality and cannot independently assert a current condition. A new fault cannot be confirmed while its source is unavailable.
+
+This is a deliberately small demonstration model, not production alarm-latching or safety logic. All evaluation and generated event timestamps use the fixed `simNow`. A monotonic sequence orders ties. Alerts sort by severity, timestamp and descending sequence; transition history sorts chronologically, then descending sequence.
+
+## Persistence and Reset
+
+`simulation/persistence.ts` stores only the overlay under `medops.demo.simulation.v1`, with schema version, simulation time, active scenarios, history, next sequence and a few last-known reading copies. No full inventory or calculated counts are saved.
+
+At startup, saved transitions are validated/replayed against the immutable seed, then every stored field is compared with the canonical result. This rejects malformed JSON, mismatched versions, invalid actions, forged caches, duplicate transitions, impossible scenario flags and inconsistent counters. Replay is a storage-consistency check; historical log entries are never passed as active evidence to `evaluateAsset`.
+
+The provider keeps a small separate storage-availability indicator for UI feedback; equipment state changes still go through the single simulation reducer. Blocked/full storage leaves the in-memory demo functional and displays a warning. Reset returns the entire overlay to baseline, clears generated history, resets the clock/counter and removes only this application's storage key. The Dashboard's connection-target selector also returns to FRG-BB-01. Filters and selected equipment remain URL state and do not reset equipment evidence themselves.
 
 ## Routes and the shared shell
 
@@ -72,14 +105,14 @@ This is like several SCADA display pages reading the same tag database: changing
 
 `useAssetSelection` adds or removes the `asset` query parameter on the current page, preserving the other query parameters. Opening pushes history; Close/Escape/backdrop removes `asset` with replacement so it stays on the current page. Back after an in-app opening restores the preceding URL, closing the drawer; Forward can reopen it. Direct URLs and refreshes work because `AppLayout` resolves that ID through `getAsset`. Invalid IDs show a dismissible notice.
 
-The existing `AssetDrawer` remains the only equipment-detail implementation. Its mount/unmount effect manages focus, keyboard trapping and body scrolling. A ref keeps its Escape callback current without rerunning the focus effect when URL navigation changes callback identities. On an in-app opening, closing restores the triggering control's focus. Direct loads may have no triggering control to restore.
+The existing `AssetDrawer` remains the only equipment-detail implementation. Its mount/unmount effect manages focus, keyboard trapping and body scrolling. A ref keeps its Escape callback current without rerunning the focus effect when URL navigation or simulation changes callback identities. On an in-app opening, closing restores the triggering control's focus. If that control has disappeared because a condition change removed the row from a filter, focus falls back to the page heading. Direct loads may have no triggering control to restore.
 
-Mobile-menu state stays local to the layout. There is no localStorage. Refreshing restores the deterministic evidence while retaining filters and drawer selection encoded in the address.
+Mobile-menu state stays local to the layout. Refresh restores the validated simulation overlay from localStorage while retaining filters and drawer selection encoded in the address. Storage is scoped to a browser origin/profile, with no multi-user or cross-tab synchronization.
 
-The mock provider is deliberately synchronous because the dataset is local. In v0.1C, the state initializer in `DemoDataProvider.tsx` is the intended connection point for controlled evidence updates. Add the necessary state-update actions there and recompute memoized selectors from the new snapshot, so every page and the drawer updates together. Change readings, events or source availability rather than assigning condition strings to assets. These actions are not implemented in v0.1B. Later, an asynchronous provider can retrieve approved, normalized evidence from a backend, with loading/error and refresh/subscription behavior added then.
+The mock provider remains synchronous. Later, an asynchronous provider can retrieve approved, normalized evidence from a backend, with loading/error and refresh/subscription behavior added then. The separation of identity, current evidence and history should remain intact.
 
 ## Future equipment connection boundary
 
 `DataProvider` is analogous to the interface between a SCADA display and its tag server. A future backend would authenticate users, receive approved read-only BMS/PLC/SCADA evidence, normalize it, and expose snapshots to this frontend. Protocol adapters for BACnet, Modbus or OPC UA belong behind that backend boundary. The browser should not connect directly to hospital control networks.
 
-No integration adapter, authentication service or backend is built in v0.1B. Service history and documents remain demonstration metadata. `npm run build` produces a static frontend in `dist/`. The default base `/` and absence of a top-level `404.html` preserve Cloudflare Pages' standard SPA fallback; the application renders its Not Found page after the SPA loads. Static hosting alone does not supply the future backend or security model. No deployment configuration or external connection is added.
+No integration adapter, authentication service or backend is built in v0.1C. Service history and documents remain demonstration metadata. `npm run build` produces a static frontend in `dist/`. The default base `/` and absence of a top-level `404.html` preserve Cloudflare Pages' standard SPA fallback; the application renders its Not Found page after the SPA loads. Static hosting alone does not supply the future backend or security model. No deployment configuration or external connection is added.

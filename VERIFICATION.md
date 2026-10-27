@@ -1,74 +1,83 @@
-# Verification — MedOps v0.1B
+# Verification — MedOps v0.1C
 
 Executed 27 October 2026 against the completed local implementation.
 
-## Baseline protection
+## Baseline and preservation
 
-- Existing v0.1A checkpoint: `9384450` (with the earlier data checkpoint `7e39a0b`).
-- Initial baseline: all 10 original domain tests passed.
-- The unrelated, untracked `codecheck.zip` was left untouched and excluded from the implementation checkpoint.
-- `.gitignore` already excludes dependencies, `dist`, TypeScript build artifacts, logs, `.env*` secrets and `.qa/` captures.
-- No changes were made under `src/domain/` or `src/data/`; their original tests and implementation remain intact.
-- Original CSS rules were retained; new navigation/page styles were appended.
+- Working v0.1B checkpoint `38aa058` existed before implementation; the initial working tree was clean.
+- All **17 existing tests** passed before changes and remain passing.
+- Existing data/domain modules, asset identities, seed readings, monitoring limits, maintenance and seed events are unchanged.
+- Baseline remains **50 assets**, category totals **14/10/9/9/8**, conditions **43 Normal / 5 Attention / 1 Critical / 1 Unknown** and seven active seed alerts.
+- Local checkpoints were created for the pure simulation model and the working persistent UI. No new repository, remote push or external deployment was performed.
 
 ## Automated checks executed
 
-- `npm test`: **17 tests passed, 0 failed** (10 unchanged domain tests and 7 new navigation-helper tests).
-- Inventory remains exactly **50 unique assets**, category totals **14/10/9/9/8**, calculated conditions **43 Normal / 5 Attention / 1 Critical / 1 Unknown**.
-- Original coverage includes data-reference integrity, four-point AHU identity, independent operating state, evidence-based conditions, unavailable/stale evidence, critical priority, maintenance and filtering.
-- New coverage includes category slug mapping, combined query parsing, malformed/unsafe page values, page clamping, invalid-filter normalization, query preservation during drawer selection, engineering-priority asset ordering and severity-first event ordering.
-- `npm run typecheck`: **passed**.
-- `npm run build`: **passed**, producing the static application in `dist/`.
-- Package installation reported **0 audit vulnerabilities** at installation time.
-- React Router **8.5.0** is installed and compatible with the installed React 19.3.1 and Node 24.22.1.
+`npm test`: **39 passed, 0 failed** — the original 17 tests plus 22 simulation/persistence tests.
 
-The existing 10 tests, type checking and a production build also passed after initial page extraction, before the later presentation and validation work.
+The new tests cover:
 
-## Interactive browser checks executed
+- Fault activation: **42/5/2/1**, one current simulated alarm and one activation log.
+- Standard FRG-BB-01 communication loss: Unknown, retained numeric value/timestamp and Unavailable quality.
+- Both scenarios on separate assets: **41/5/2/2**.
+- Independent fault clearance and connection restoration.
+- Active alarm versus historical-log separation: resolved Critical history cannot keep the asset Critical.
+- Critical followed by loss: still Critical, explicitly last confirmed/unverified, with unavailable readings.
+- Restoring communication leaves an unresolved fault active.
+- Clearing while disconnected yields Unknown and retains the previous 450 Pa last-known reading.
+- A new fault cannot be established from unavailable monitoring evidence.
+- Repeated actions are idempotent and do not duplicate transitions.
+- Same-time events have monotonic sequence numbers and deterministic ordering.
+- Repeated cycles retain distinct resolved alerts and only the latest activation is active.
+- Seed data and prior overlay states remain unchanged by later actions.
+- Reset restores the entire original snapshot, connectivity, seven seed alerts, clock and sequence.
+- Overlay serialization round-trip restores active scenarios without storing full assets or KPIs.
+- Malformed JSON, incompatible schema/time, invalid required fields, impossible flags, forged caches, duplicate transitions and counters fall back safely.
+- Reset removes only the MedOps simulation key, preserving an unrelated storage key.
+- Blocked storage and quota exceptions cannot crash the model/load/save helpers.
+- Reloaded cycles remain idempotent and continue sequence numbering.
 
-Used the available Codex in-app browser. These are browser interaction/inspection checks, distinct from the 17 Node tests. Chrome is running locally but is not exposed as an automated browser surface in this session.
+`npm run typecheck`: **passed**.
 
-- `/` redirects to `/dashboard`; an unknown path shows Not Found and its return link works.
-- Dashboard renders the original KPIs and system summaries, five highest-priority alerts and a compact priority equipment preview.
-- Engineering follow-up includes Unknown: **7 assets**, with wording that does not claim seven physical faults.
-- Assets renders the full equipment register in Critical, Unknown, Attention, Normal order, with stable ID ordering within each group.
-- Critical KPI opens `/assets?condition=Critical`; Normal KPI also navigates correctly in the production bundle.
-- HVAC health row opens `/assets?system=hvac`.
-- Combined name search `centrifuge`, system `lab` and condition `Attention` retains all three URL parameters and matches LAB-CEN-02, including consecutive fast selections.
-- Search resets pagination and replaces history; a single Back returns to the preceding Dashboard rather than stepping through typed characters.
-- Page selection is reflected in the URL; Back/Forward restores page one/page two.
-- Explicit filter history works; a removed system chip is restored by Back. Reset filters restores the full register.
-- Refresh preserves combined filters and `/assets?condition=Critical`.
-- In-app drawer opening preserves all existing query parameters; Back closes it and Forward reopens it.
-- Direct `/assets?condition=Critical&asset=MG-O2-01` opens the correct asset. Refresh retains the selected equipment and evidence.
-- Close, Escape and desktop backdrop dismissal remove only `asset` and retain the current page and filters.
-- Keyboard focus is trapped in the drawer and returns to the triggering control after an in-app opening. A direct/refresh load may have no originating control.
-- Alerts renders all **seven active events**, ordered by severity and timestamp, including equipment, inspection, maintenance and unavailable-monitoring labels.
-- Alert selection opens the associated equipment; the unavailable freezer shows Unknown and Unavailable reading quality.
-- Refreshing `/alerts` preserves the correct page.
-- Invalid system/condition values are removed, an out-of-range page is clamped, and an unknown asset ID displays a dismissible notice.
-- Browser titles and active sidebar links follow the route. Primary page changes scroll to the top.
-- SIMULATION MODE, synthetic-data labeling, placeholder documents and shared safety/footer labels remain visible. Timestamps use BDT and Asia/Dhaka formatting.
-- Mobile navigation switches pages and closes correctly. At 390 pixels, Assets and Alerts have no page-level horizontal overflow; the inventory scrolls inside its panel, and the drawer fits the viewport.
-- Desktop and mobile layouts were visually inspected; additional width checks cover 768, 1024 and 1280 pixels.
-- Browser runtime console checks found no warnings or errors in the stable development and production application.
+`npm run build`: **passed**, producing the static bundle in `dist/`.
 
-## Production route smoke test
+No dependency was added for this milestone. Package version is 0.1.2; visible milestone labels are v0.1C.
 
-Served `dist/` locally using `npm run preview` on port 4173:
+## Browser interaction checks executed
 
-- Direct selected-asset URL loaded and opened its drawer.
-- Refresh of the Critical Assets view preserved its filter.
-- Alerts loaded/refreshed and displayed seven events.
-- Dashboard-to-Normal KPI navigation matched 43 assets.
-- No browser console warnings/errors were reported.
+Used the available Codex in-app browser. These are actual interaction/inspection checks, separate from the Node tests.
 
-The build contains `index.html`, `favicon.svg` and bundled assets. No top-level `404.html` or `_redirects` file was added. Standard Cloudflare Pages SPA fallback compatibility was retained; actual Cloudflare hosting was not tested or deployed.
+- Dashboard Simulate Fault changes Normal to 42 and Critical to 2; AHU health summary changes to 11/14 Normal.
+- Standard Simulate Connection Loss produces 41 Normal, 2 Critical and 2 Unknown across shared views.
+- Unknown-filtered inventory includes FRG-BB-01 with its simulation badge.
+- Refrigerator drawer shows 4.2 °C as a **last-known value, not currently verified**, with Unavailable quality and its preserved 09:28 BDT report time.
+- Refresh preserves active scenarios, selected drawer, unavailable readings and generated history.
+- Restore Connection immediately updates an open drawer. If the asset leaves its Unknown filter, closing the drawer recovers focus to the page heading.
+- Alerts displays current seed/scenario alarms, resolved simulated alerts and separately recorded transition history.
+- Restored/cleared alerts remain resolved after refresh; old Critical history does not reactivate a cleared fault.
+- In the AHU drawer: activate fault, lose connection, restore connection, lose connection again, clear fault while offline, and restore connection. Verified Critical/unverified versus Unknown behavior and retained 450 Pa values.
+- New fault activation is disabled while the AHU source is unavailable.
+- Reset restores baseline, removes generated history, survives refresh and restarts generated event numbering at #1 on the next action.
+- Mobile controls work at 390 pixels; mobile navigation, inventory search, drawer labels, event history and Reset work without page-level overflow.
+- Additional responsive checks cover 768, 1024 and 1280 pixels.
+- URL filtering, direct asset links and Back/Forward drawer behavior remain intact with scenarios active.
+- Fixed BDT timestamps, SIMULATION MODE, synthetic-data disclaimers and placeholder documents remain visible.
 
-## Remaining manual checks
+## Production bundle checks executed
 
-- Direct Chrome check on the stakeholder demonstration computer.
-- Physical-phone/touch-device testing if the presentation will use one; mobile checks here use browser viewport sizes.
-- Engineering review of the fictional demonstration wording before stakeholder use. No simulated limit is validated as a hospital operating criterion.
+Served the production build locally on port 4173:
 
-The development server is left running at http://127.0.0.1:5173/dashboard. The temporary production-preview server is stopped after verification. No external deployment, GitHub push, data mutation, localStorage persistence or equipment integration was performed.
+- Original baseline loaded correctly.
+- Both scenarios produced 41/5/2/2 and survived refresh using real browser localStorage.
+- KPI navigation opened the Critical filter; AHU details showed 450 Pa.
+- Browser Back/Forward closed/reopened the selected drawer without undoing simulation state.
+- Reset restored baseline and remained reset after refresh.
+- Stable production loads/interactions and a clean development reload reported no new console warnings/errors. Earlier bulk source edits produced temporary hot-refresh context errors; these were absent after clean loads and in the production bundle.
+
+The temporary preview server is stopped after verification. Development remains running at http://127.0.0.1:5173/dashboard. The demo is reset to its original baseline for handoff.
+
+## Verification limits
+
+- Direct Chrome and physical-phone checks remain manual; browser QA used the in-app browser with responsive viewport sizes.
+- Corrupt/blocked/quota storage cases were executed against the actual validation/persistence functions with an in-memory storage adapter, not by changing browser security settings or manually corrupting browser storage.
+- No real hospital limits, clinical safety or production alarm behavior is validated. No real equipment/network is connected.
+- Cloudflare hosting and GitHub publication were not performed.
