@@ -1,51 +1,74 @@
-# Verification — v0.1A
+# Verification — MedOps v0.1B
 
-Executed 27 October 2026. All checks below apply to the completed local implementation.
+Executed 27 October 2026 against the completed local implementation.
+
+## Baseline protection
+
+- Existing v0.1A checkpoint: `9384450` (with the earlier data checkpoint `7e39a0b`).
+- Initial baseline: all 10 original domain tests passed.
+- The unrelated, untracked `codecheck.zip` was left untouched and excluded from the implementation checkpoint.
+- `.gitignore` already excludes dependencies, `dist`, TypeScript build artifacts, logs, `.env*` secrets and `.qa/` captures.
+- No changes were made under `src/domain/` or `src/data/`; their original tests and implementation remain intact.
+- Original CSS rules were retained; new navigation/page styles were appended.
 
 ## Automated checks executed
 
-- `npm test`: **10 tests passed, 0 failed**.
-- Exactly 50 unique physical asset IDs.
-- Category counts: HVAC/theatre 14, medical gas 10, cold storage 9, electrical/power 9, laboratory 8.
-- Initial calculated conditions: Normal 43, Attention 5, Critical 1, Unknown 1.
-- KPI counts sum to the underlying physical inventory.
-- All location and asset references resolve; normalized reading units and point references match.
-- One AHU has four points and remains one asset; operating state does not determine condition.
-- Modified evidence produces a new condition without changing asset identity.
-- Missing, uncertain, stale and disconnected evidence produces Unknown; known critical evidence takes priority.
-- Maintenance dates independently produce Attention; the latest reading is selected when multiple reports exist.
-- Search by ID/name and combined category/condition filtering.
+- `npm test`: **17 tests passed, 0 failed** (10 unchanged domain tests and 7 new navigation-helper tests).
+- Inventory remains exactly **50 unique assets**, category totals **14/10/9/9/8**, calculated conditions **43 Normal / 5 Attention / 1 Critical / 1 Unknown**.
+- Original coverage includes data-reference integrity, four-point AHU identity, independent operating state, evidence-based conditions, unavailable/stale evidence, critical priority, maintenance and filtering.
+- New coverage includes category slug mapping, combined query parsing, malformed/unsafe page values, page clamping, invalid-filter normalization, query preservation during drawer selection, engineering-priority asset ordering and severity-first event ordering.
 - `npm run typecheck`: **passed**.
-- `npm run build`: **passed**; static files emitted to `dist/`.
-- Dependency installation completed with **0 reported audit vulnerabilities** at installation time.
+- `npm run build`: **passed**, producing the static application in `dist/`.
+- Package installation reported **0 audit vulnerabilities** at installation time.
+- React Router **8.5.0** is installed and compatible with the installed React 19.3.1 and Node 24.22.1.
+
+The existing 10 tests, type checking and a production build also passed after initial page extraction, before the later presentation and validation work.
 
 ## Interactive browser checks executed
 
-Tests used the available Codex in-app browser. Chrome was not available to this session's browser-control tool.
+Used the available Codex in-app browser. These are browser interaction/inspection checks, distinct from the 17 Node tests. Chrome is running locally but is not exposed as an automated browser surface in this session.
 
-- Development URL returned HTTP 200.
-- Dashboard displays derived totals and category summaries.
-- Name search `centrifuge` returns two records; category Laboratory + condition Attention returns LAB-CEN-02.
-- ID search `ahu-ot-01` selects the correct asset and its four readings.
-- Critical and Unknown KPI filters select MG-O2-01 and FRZ-LAB-03 respectively.
-- Drawers show identity, structured location, operating state, condition reasons, units, quality, monitoring method, independent connectivity, report time, service dates, document placeholders and events.
-- Checked Normal, Critical, Unknown and inspection-based Attention details.
-- Drawer close button and Escape dismissal work.
-- Last pagination page displays the final two records, LAB-WB-01 and LAB-AUT-01.
-- Unmatched search displays the empty state; clearing filters restores all assets.
-- Alert expansion exposes all seven synthetic events; alert selection opens equipment details.
-- Dashboard navigation returns to the overview; Assets navigation targets inventory.
-- Mobile navigation opens, closes via selection, and closes via Escape.
-- Responsive widths checked: 390, 768, 1024 and 1280 CSS pixels; no page-level horizontal overflow. The inventory has its own horizontal scrolling region.
-- The equipment drawer fits the 390-pixel mobile viewport without internal horizontal overflow.
-- Desktop dashboard, mobile dashboard and mobile drawer were visually inspected. Local preview captures are in ignored `.qa/`.
-- Production bundle was served with `npm run preview` on port 4173; KPI rendering, search and Critical equipment selection passed.
-- Clean production and development page loads generated no new console warnings or errors. Bulk source formatting had caused transient hot-reload errors during development; those were absent on clean loads and the production bundle.
+- `/` redirects to `/dashboard`; an unknown path shows Not Found and its return link works.
+- Dashboard renders the original KPIs and system summaries, five highest-priority alerts and a compact priority equipment preview.
+- Engineering follow-up includes Unknown: **7 assets**, with wording that does not claim seven physical faults.
+- Assets renders the full equipment register in Critical, Unknown, Attention, Normal order, with stable ID ordering within each group.
+- Critical KPI opens `/assets?condition=Critical`; Normal KPI also navigates correctly in the production bundle.
+- HVAC health row opens `/assets?system=hvac`.
+- Combined name search `centrifuge`, system `lab` and condition `Attention` retains all three URL parameters and matches LAB-CEN-02, including consecutive fast selections.
+- Search resets pagination and replaces history; a single Back returns to the preceding Dashboard rather than stepping through typed characters.
+- Page selection is reflected in the URL; Back/Forward restores page one/page two.
+- Explicit filter history works; a removed system chip is restored by Back. Reset filters restores the full register.
+- Refresh preserves combined filters and `/assets?condition=Critical`.
+- In-app drawer opening preserves all existing query parameters; Back closes it and Forward reopens it.
+- Direct `/assets?condition=Critical&asset=MG-O2-01` opens the correct asset. Refresh retains the selected equipment and evidence.
+- Close, Escape and desktop backdrop dismissal remove only `asset` and retain the current page and filters.
+- Keyboard focus is trapped in the drawer and returns to the triggering control after an in-app opening. A direct/refresh load may have no originating control.
+- Alerts renders all **seven active events**, ordered by severity and timestamp, including equipment, inspection, maintenance and unavailable-monitoring labels.
+- Alert selection opens the associated equipment; the unavailable freezer shows Unknown and Unavailable reading quality.
+- Refreshing `/alerts` preserves the correct page.
+- Invalid system/condition values are removed, an out-of-range page is clamped, and an unknown asset ID displays a dismissible notice.
+- Browser titles and active sidebar links follow the route. Primary page changes scroll to the top.
+- SIMULATION MODE, synthetic-data labeling, placeholder documents and shared safety/footer labels remain visible. Timestamps use BDT and Asia/Dhaka formatting.
+- Mobile navigation switches pages and closes correctly. At 390 pixels, Assets and Alerts have no page-level horizontal overflow; the inventory scrolls inside its panel, and the drawer fits the viewport.
+- Desktop and mobile layouts were visually inspected; additional width checks cover 768, 1024 and 1280 pixels.
+- Browser runtime console checks found no warnings or errors in the stable development and production application.
 
-## Checks remaining for the user
+## Production route smoke test
 
-- A direct Chrome check on the demonstration computer, since automated checks used the in-app browser.
-- A physical phone/touch-device check if the presentation will use one; responsive testing used browser viewport sizes.
-- Subject-matter review of fictional equipment labels and presentation wording before the stakeholder demonstration. No thresholds are validated for hospital use.
+Served `dist/` locally using `npm run preview` on port 4173:
 
-Development server is left running on http://127.0.0.1:5173/ for the handoff. The temporary production preview server is stopped after verification. No external deployment or remote Git push was performed.
+- Direct selected-asset URL loaded and opened its drawer.
+- Refresh of the Critical Assets view preserved its filter.
+- Alerts loaded/refreshed and displayed seven events.
+- Dashboard-to-Normal KPI navigation matched 43 assets.
+- No browser console warnings/errors were reported.
+
+The build contains `index.html`, `favicon.svg` and bundled assets. No top-level `404.html` or `_redirects` file was added. Standard Cloudflare Pages SPA fallback compatibility was retained; actual Cloudflare hosting was not tested or deployed.
+
+## Remaining manual checks
+
+- Direct Chrome check on the stakeholder demonstration computer.
+- Physical-phone/touch-device testing if the presentation will use one; mobile checks here use browser viewport sizes.
+- Engineering review of the fictional demonstration wording before stakeholder use. No simulated limit is validated as a hospital operating criterion.
+
+The development server is left running at http://127.0.0.1:5173/dashboard. The temporary production-preview server is stopped after verification. No external deployment, GitHub push, data mutation, localStorage persistence or equipment integration was performed.

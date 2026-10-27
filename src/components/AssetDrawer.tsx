@@ -25,6 +25,10 @@ export function AssetDrawer({
 }) {
   const panel = useRef<HTMLDivElement>(null);
   const close = useRef<HTMLButtonElement>(null);
+  const closeAction = useRef(onClose);
+  useEffect(() => {
+    closeAction.current = onClose;
+  }, [onClose]);
   const location = snapshot.locations.find((l) => l.id === asset.locationId)!;
   const maintenance = snapshot.maintenance.filter(
     (m) => m.assetId === asset.id,
@@ -38,7 +42,7 @@ export function AssetDrawer({
     document.body.style.overflow = "hidden";
     close.current?.focus();
     function handleKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") closeAction.current();
       if (event.key === "Tab") {
         const controls = panel.current?.querySelectorAll<HTMLElement>(
           'button, a[href], input, select, [tabindex="0"]',
@@ -62,7 +66,7 @@ export function AssetDrawer({
       document.removeEventListener("keydown", handleKey);
       previous?.focus();
     };
-  }, [onClose]);
+  }, []);
 
   return (
     <div className="drawer-layer" onClick={onClose}>
@@ -120,7 +124,7 @@ export function AssetDrawer({
                 <li key={reason}>{reason}</li>
               ))}
             </ul>
-            <p>Evaluated at {time(snapshot.now)} BST · Fictional demo rules</p>
+            <p>Evaluated at {time(snapshot.now)} BDT · Fictional demo rules</p>
           </section>
           <section className="detail-section">
             <h3>
@@ -181,7 +185,7 @@ export function AssetDrawer({
                       </span>
                       <span className="reading-time">
                         {reading
-                          ? `${time(reading.timestamp)} BST`
+                          ? `${time(reading.timestamp)} BDT`
                           : "No report"}
                       </span>
                     </div>
@@ -211,7 +215,7 @@ export function AssetDrawer({
                 <dt>Last reported</dt>
                 <dd>
                   {asset.lastReported
-                    ? `${date(asset.lastReported)}, ${time(asset.lastReported)} BST`
+                    ? `${date(asset.lastReported)}, ${time(asset.lastReported)} BDT`
                     : "No report available"}
                 </dd>
               </div>
@@ -282,7 +286,7 @@ export function AssetDrawer({
                   <strong>{event.title}</strong>
                   <p>{event.description}</p>
                   <small>
-                    {date(event.timestamp)} · {time(event.timestamp)} BST ·{" "}
+                    {date(event.timestamp)} · {time(event.timestamp)} BDT ·{" "}
                     {event.active ? "Open" : "Recorded"}
                   </small>
                 </div>
