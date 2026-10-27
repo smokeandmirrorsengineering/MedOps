@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "tsx --test src/domain/*.test.ts src/lib/*.test.ts"
+    "test": "tsx --test src/domain/*.test.ts src/lib/*.test.ts src/simulation/*.test.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.0",

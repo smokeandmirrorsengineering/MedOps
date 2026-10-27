@@ -28,11 +28,12 @@ export function orderAssets<T extends Asset & { condition: Condition }>(
       a.id.localeCompare(b.id, "en"),
   );
 }
-export function orderEvents(events: readonly AssetEvent[]): AssetEvent[] {
+export function orderEvents<T extends AssetEvent & { sequence?: number }>(events: readonly T[]): T[] {
   return [...events].sort(
     (a, b) =>
       severityPriority[a.severity] - severityPriority[b.severity] ||
       Date.parse(b.timestamp) - Date.parse(a.timestamp) ||
+      (b.sequence ?? 0) - (a.sequence ?? 0) ||
       a.id.localeCompare(b.id),
   );
 }
