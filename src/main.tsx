@@ -4,10 +4,12 @@ import App from "./App";
 import { BrowserRouter } from "react-router";
 import { DemoDataProvider } from "./state/DemoDataProvider";
 import { ReviewProvider } from "./reviews/ReviewProvider";
+import { FollowUpProvider } from "./followups/FollowUpProvider";
 import "./styles.css";
 import "./reviews/reviews.css";
 import "./reviews/report.css";
 import "./enterprise.css";
+import "./operational.css";
 
 // Commit URL-driven form updates immediately, including consecutive filter changes.
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -15,7 +17,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <BrowserRouter useTransitions={false}>
       <DemoDataProvider>
         <ReviewProvider>
-          <App />
+          <FollowUpProvider>
+            <App />
+          </FollowUpProvider>
         </ReviewProvider>
       </DemoDataProvider>
     </BrowserRouter>

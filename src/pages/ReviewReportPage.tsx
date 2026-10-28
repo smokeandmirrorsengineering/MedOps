@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Printer } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
+import { CurrentFollowUps } from "../followups/CurrentFollowUps";
 import { useReviews } from "../reviews/ReviewProvider";
 import { AUTHORIZATION_STATEMENT } from "../reviews/types";
 import type { HumanVerification } from "../reviews/types";
@@ -317,6 +318,7 @@ export function ReviewReportPage() {
           </footer>
         </article>
       </div>
+      <CurrentFollowUps reviewId={review.id} />
     </>
   );
 }

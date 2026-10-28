@@ -20,6 +20,7 @@ import { useDemoData } from "../state/DemoDataProvider";
 import { useAssetSelection } from "../state/useAssetSelection";
 import { AssetDrawer } from "../components/AssetDrawer";
 import { BrandMark } from "../components/BrandMark";
+import { FollowUpPanel } from "../followups/FollowUpPanel";
 const nav = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { name: "Assets", icon: Box, path: "/assets" },
@@ -264,13 +265,16 @@ export function AppLayout() {
           </footer>
         </main>
       </div>
-      {selected && (
-        <AssetDrawer
-          asset={selected}
-          snapshot={snapshot}
-          onClose={closeAsset}
-        />
-      )}
+      {selected &&
+        !new URLSearchParams(location.search).has("followup") &&
+        !new URLSearchParams(location.search).has("followupSource") && (
+          <AssetDrawer
+            asset={selected}
+            snapshot={snapshot}
+            onClose={closeAsset}
+          />
+        )}
+      <FollowUpPanel />
     </div>
   );
 }
