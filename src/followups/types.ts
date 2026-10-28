@@ -37,5 +37,9 @@ export const actionClock: ActionClock = {
   now: () => new Date().toISOString(),
   id: () => crypto.randomUUID(),
 };
+export const isActualRecordTime = (value: unknown): value is string =>
+  typeof value === "string" &&
+  /^\d{4}-\d\d-\d\dT.*Z$/.test(value) &&
+  Number.isFinite(Date.parse(value));
 export const COMPLETION_LABEL =
   "Action recorded · Equipment condition not re-verified";

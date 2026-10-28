@@ -1,4 +1,59 @@
-# Verification — Evidanor v0.3
+# Verification — Evidanor v0.3.1
+
+Executed **29 October 2026 (Asia/Dhaka)** on `feature/v0.3.1-operational-loop`, branched from completed v0.3 commit `41a115c` with a clean working tree.
+
+## v0.3.1 compatibility and checkpoints
+
+- Checkpoint Zero: [OPERATIONAL_LOOP_AUDIT.md](OPERATIONAL_LOOP_AUDIT.md) records actual fixed OT selection/storage boundaries and the reusable item-driven core. Focused Investigation proceeded through bounded changes; no review-engine rewrite was needed.
+- Stable local checkpoints: `4c4aa12` (Follow-Up Lite), `3e935aa` (asset-bound focused investigations and legacy compatibility), `c84aac4` (guide and activity). Final QA/preflight/documentation follows on the same local branch.
+- Equipment datasets, condition evaluator, simulation modules and original OT template source are unchanged from `41a115c`. Existing report print CSS is unchanged. No old record migration, broad reset, new dependency, push, merge or deployment was performed.
+
+## Automated results
+
+- **`npm test`: 93 passed, 0 failed.** All 70 v0.3 tests remain intact. Added nine follow-up tests, seven focused-review tests, four guide tests and three activity tests.
+- **`npm run typecheck`: passed.**
+- **`npm run build`: passed.**
+- **`git diff --check`: passed.**
+
+New coverage includes one primary follow-up per source exception, meaningful assignment/action, forward-only transitions, append-only history, completion notes, read-only completed actions, actual UTC/backwards-clock validation, persistence/corrupt/quota cases, review/equipment independence, three stable focused items and subject-only evidence, no automatic Pass, Critical/Unknown reconciliation, independent draft IDs, mixed legacy OT/focused storage, frozen reports, re-verification lineage, guide baseline exclusion/restart isolation, activity clocks/source integrity/ordering/deduplication, and Reset Demo independence.
+
+## Browser end-to-end demonstration executed
+
+Used the actual in-app browser UI at `http://127.0.0.1:5173/`:
+
+1. Reset equipment to its derived baseline (43 Normal / 5 Attention / 1 Critical / 1 Unknown). Started a guide with **0/5** steps despite existing historical reviews and issues.
+2. Activated the existing AHU-OT-01 fault through the guide: Critical became 2; Detect became 1/5. Opened the AHU, viewed Critical/450 Pa evidence and Equipment Activity. Start Investigation preselected AHU-OT-01.
+3. Created focused draft **`REV-893d7951-08c1-4b72-94d2-31209b4a3bb1`** with exactly three navigation items and no selected response. Pass against Critical evidence was blocked without reconciliation. Saved the explanation/ownership/action, reloaded and recovered the first response, then saved all three items.
+4. Submitted through the read-only confirmation. The summary showed **3 reviewed items / 3 open discrepancies**. Saved the rendered Detailed Record text as the historical comparison.
+5. From its Open Issues, created **`FU-08e78ce4-fa0e-4e37-aa46-a6f651335267`**. An initial scrolling defect in the new panel was fixed; all controls were then reachable in the panel's own scroll area. Moved Open → In Progress with a synthetic progress note. Action Completed without a note was blocked; adding the completion note succeeded. Reload recovered the action and all three status entries.
+6. Closed/reopened the source action: the same follow-up ID and three history entries returned; the original exception remained Open and all three original issues stayed listed. Completed action displayed **Action recorded · Equipment condition not re-verified**.
+7. Start Re-verification opened a new focused form for the same asset with no operational panel blocking it. Created independent draft **`REV-40bd4a2a-bb69-4bed-a798-3ee9391fe850`**, with zero saved responses and a distinct ID. It did not reopen or overwrite the submitted record.
+8. Returned to Dashboard: the guide showed **5/5 recorded** and the equipment still had the active simulated fault (Critical count 2). Cleared the fault separately through Demo Controls; Normal returned to 43. Reopening the original Detailed Record produced **exactly the same rendered record text**, including Critical/450 Pa evidence. The separate current-actions panel still showed Action Completed.
+9. Restart Guide returned progress to 0/5. Exit Guide left the engineering records intact; Alerts still contained both recorded simulation transitions. A subsequent equipment Reset Demo preserved the original report text and completed action while resetting only equipment simulation state.
+
+All names, observations, progress/completion notes and actions above were explicitly synthetic. They do not claim physical maintenance or an actual hospital inspection.
+
+## Responsive, keyboard and production checks
+
+- **32 viewport checks** across Dashboard/guide, Reviews home, focused Start, focused Report, re-verification Runner, completed follow-up panel, equipment/activity drawer and Alerts at **1440, 1280, 768 and 390 px**. No page-level horizontal overflow. Guide cards stack on mobile and follow-up contents scroll within the drawer.
+- Follow-up keyboard trap: Shift+Tab from Close reached Start Re-verification; Tab wrapped to Close; Escape returned focus to the originating Open Follow-Up button.
+- Existing print buttons/modes remain available. Current operational actions are outside the frozen article and are excluded by print CSS. **Actual print-preview pagination was not independently verified**; no page-count or PDF-export claim is made in this milestone.
+- Production bundle served locally on port 4173. Direct `/assets?asset=AHU-OT-01` survived reload with its drawer. Start Investigation bound the same subject. A new focused production-origin draft saved one Unable to Verify response and recovered it after refresh; the pre-existing v0.2 OT draft remained present alongside it.
+- A development-origin report ID opened on the preview origin showed Review not found after direct navigation/refresh, as expected for separate localStorage. An unknown follow-up ID displayed Source record unavailable. Neither case reconstructed history from current telemetry.
+- Production warning/error log was empty. [DEPLOYMENT_PREFLIGHT.md](DEPLOYMENT_PREFLIGHT.md) records inspected BrowserRouter/Vite output and the official Cloudflare SPA fallback documentation. No top-level `404.html` or redundant redirect rule was added.
+
+## Limits and handover state
+
+- Follow-ups document current operational action status. Completed actions are read-only; original exceptions have no closure action. Re-verification creates a new record and does not establish operational authorization.
+- Persistence failure/corruption tests used the actual functions with memory/throwing adapters, not changes to browser security settings or manual corruption of the user's site data.
+- Data remains profile/origin-local, unauthenticated and unsynchronized. Different deployed visitors will have independent records. A private repository is not access control for a deployed website; only synthetic information belongs in this prototype.
+- No Cloudflare deployment/hosted-domain test, real equipment test, physical print job, or comprehensive screen-reader/device audit was performed.
+- Equipment is reset to baseline. Synthetic review/action/re-verification records remain in the in-app browser. Native Chrome records were not edited. Guide sessions can be exited without deleting records.
+- QA screenshot: `.qa/evidanor-v031-followup.png`. Temporary viewport overrides were reset and the temporary production preview was stopped after QA. The development app remains available at **http://127.0.0.1:5173/dashboard**.
+
+---
+
+# Previous milestone verification — Evidanor v0.3
 
 Executed **29 October 2026 (Asia/Dhaka)** on `feature/v0.3-premium-ui`, branched from completed v0.2 report-improvement commit `1091b7f` with a clean working tree.
 

@@ -204,7 +204,7 @@ function FollowUpEditor({
                   ? "NOT SAVED TO BROWSER — actions are in memory only; storage is unavailable or full."
                   : followups.status === "recovered"
                     ? "Saved follow-up data was invalid or incompatible and could not be restored. Reviews and equipment were not changed."
-                    : "Follow-ups saved separately in this browser · unverified typed responsibility"}
+                    : "Browser-local action records · use Create/Save to retain changes. Typed responsibility is unverified."}
               </div>
               <label>
                 Responsible role / person

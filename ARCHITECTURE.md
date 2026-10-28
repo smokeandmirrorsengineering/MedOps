@@ -1,4 +1,38 @@
-# Evidanor architecture — v0.3
+# Evidanor architecture — v0.3.1
+
+## Operational follow-up loop
+
+Checkpoint Zero is recorded in [OPERATIONAL_LOOP_AUDIT.md](OPERATIONAL_LOOP_AUDIT.md). The core save/evidence/submission model was already item-driven. v0.3.1 extends the selection, asset-binding, UI-count and persistence boundaries without introducing a second set of verification rules.
+
+Provider nesting is `DemoDataProvider → ReviewProvider → FollowUpProvider → GuideProvider → App`. Reviews own historical inspection records. Follow-ups own current actions. Guide state owns only demonstration-session context. None of the follow-up or review operations dispatches equipment commands.
+
+### Follow-Up Lite
+
+`followups/model.ts` creates one primary record for `sourceReviewId + sourceExceptionId`; repeated creation returns the existing record. Creation requires an unresolved submitted exception and meaningful responsibility/action. It copies source identity, asset ID, item/issue description and actual UTC creation time. The source review is never changed.
+
+Updates return new objects, append progress notes and append status transitions. Open → In Progress → Action Completed is forward-only; completion needs a meaningful note, and completed actions are read-only. Invalid/backwards record clocks cannot write unrestorable histories. This is documentation of an action, not proof of physical work, exception resolution or equipment verification.
+
+`followups/persistence.ts` validates versioned JSON, unique action IDs/source keys, required fields, status paths, timestamps and append-only history consistency under `evidanor:followups:v1`. Storage errors remain explicit and do not touch review/simulation keys. Browser-local consistency validation is not authentication or tamper resistance.
+
+The global follow-up drawer is selected by `followup` or `followupSource` query parameters, preserving the current route/filter. It has a scrollable body, keyboard focus trap, Escape and return focus. Open Issues offers create/open actions while retaining the source exception's Open status. `CurrentFollowUps` sits outside the frozen report article and is hidden in both print modes. Re-verification uses a distinct `fromFollowUp` entry parameter to avoid accidentally reopening the operational drawer on the new-review page.
+
+### Focused Equipment Investigation
+
+`reviews/focused.ts` constructs one three-item template bound to a selected existing asset: evidence review, independent verification, findings/follow-up. All three items use the existing response choices/methods and the original abnormal-observation, reconciliation, ownership and tolerance rules. Equipment comes only from the shared snapshot; this creates no new service relationships or limits.
+
+New sessions optionally carry `subjectAssetId` and `sourceFollowUpId`. Existing OT records lack these fields and remain valid without migration. The legacy OT-template validation branch still checks its nine items and six supported assets. A separate focused-template branch validates three stable IDs, one known subject, matching scope and per-response subject-only evidence. Captured and explicitly retained evidence use that record's asset whitelist. Submission completeness uses the frozen template item count; reports and history render the frozen titles/prompts and response evidence for either template.
+
+The equipment drawer preselects its subject in Start Review. Each creation gets a fresh UUID; existing drafts are listed independently. Completed asset-linked actions offer a new focused re-verification. Scope-only actions offer a new general review without inventing an asset. A new re-verification never reopens an old submission or closes its exception.
+
+### Guide and equipment activity
+
+`guide/model.ts` captures current review/action IDs when starting or restarting a session. Progress requires actual new relevant records, the target asset being viewed, actual fault activation observed during the session, and report viewing. A reviewed abnormal target can satisfy Detect without claiming a newly injected fault. Old submitted records/actions are excluded. The final step records that a separate re-verification record was started; it does not claim equipment was re-verified.
+
+`GuideProvider` persists only this context under `evidanor:guide:v1`. Restart replaces the guide baseline/progress; Exit stores an inactive session. Neither operation writes to engineering or simulation records. The Dashboard uses a native collapsible card and normal links/actions; there is no overlay tour, navigation automation or prerequisite for ordinary operation.
+
+`activity/model.ts` derives a limited list from actual seed events, simulation transitions, asset-linked submitted reviews and follow-up status history. It labels each timestamp's clock, sorts by time with deterministic source ordering for ties, and deduplicates source IDs. It excludes drafts, unrelated assets and projected current-alarm duplicates. No separate activity store or hypothetical past condition is generated. The drawer lists in-progress drafts separately and shows up to eight recent activity entries with source links.
+
+The existing fixed simulated clock, seed equipment, evaluator and simulation reducer remain unchanged. Reset Demo still clears equipment overlays only. See [DEPLOYMENT_PREFLIGHT.md](DEPLOYMENT_PREFLIGHT.md) for static routing and origin/persistence limitations.
 
 ## Evidence Navy presentation layer
 

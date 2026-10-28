@@ -1,10 +1,43 @@
-# Evidanor v0.3 — Evidence Navy
+# Evidanor v0.3.1 — Operational Follow-Up & Interactive Demo
 
 **Infrastructure intelligence, grounded in evidence.**
 
 A local React + TypeScript application for MedOps Demo Hospital, a fictional 250-bed facility in Dhaka. Dashboard, Assets and Alerts share one immutable seed dataset plus an interactive simulation overlay. Engineering Reviews adds human inspection records, captured evidence, follow-up exceptions and printable historical reports. All equipment, readings, limits, alerts, manufacturers and service records are synthetic. They are demonstration material, not hospital operating criteria. Simulation actions never command real equipment.
 
 Evidanor is the provisional product name; no trademark clearance is claimed. The project directory, repository, fictional hospital name, asset IDs, internal identifiers and persistence keys remain unchanged. Historical template wording and the required operational-authorization statement can still mention MedOps; they are intentionally preserved.
+
+## What's new in v0.3.1
+
+- **Engineering Follow-Up Lite:** Open Issues can create one primary action per submitted exception. Assign a responsible role/person and proposed action, add progress notes, and move Open → In Progress → Action Completed. Completion requires a meaningful note. Completed actions are read-only and show **Action recorded · Equipment condition not re-verified**. The source exception remains Open.
+- **Focused Equipment Investigation:** a second, three-item template for one selected asset. Open an equipment drawer and choose **Start Investigation**; the asset is already selected. The same response/method/reconciliation/ownership and evidence-change rules apply. Multiple independent drafts can coexist. An action's **Start Re-verification** opens a new asset-bound record; it never reopens the original submission.
+- **Explore Evidanor:** an optional collapsible Dashboard guide with Detect, Investigate, Verify, Follow Up, and Report & Re-verify. Start a session before the demonstration; old reviews/actions are excluded from its progress. Opening assets/reports and creating actual new records drives progress. Restart and Exit reset only the guide context, never engineering records or equipment history.
+- **Equipment Activity:** the asset drawer derives up to eight recent entries from stored synthetic events, submitted reviews and follow-up status transitions. Each entry labels simulated equipment time or actual record time and links to its source where available. Drafts remain listed separately; no timeline database is created.
+
+Checkpoint Zero found the core review engine reusable, with bounded changes to selection, subject binding, UI counts and persistence validation. The legacy OT validation branch and frozen wording are preserved; optional `subjectAssetId` / `sourceFollowUpId` fields require no migration of old records. See [OPERATIONAL_LOOP_AUDIT.md](OPERATIONAL_LOOP_AUDIT.md).
+
+### Four-to-five-minute synthetic demonstration
+
+1. Expand **Demo Controls** and Reset Demo. Expand **Explore Evidanor → Start Guide**. Confirm the original condition counts and zero newly recorded guide steps.
+2. Choose **Simulate AHU Fault**, then **Inspect AHU-OT-01**. Show the Critical 450 Pa indication, data quality and Equipment Activity. Choose **Start Investigation** in the drawer.
+3. Enter a synthetic technician name/role and create the draft. On all three items, deliberately choose Pass, a method and observations. Against Critical evidence, provide explicit reconciliation, a responsible role and proposed follow-up. Save each response. Submit Review → Confirm submission. The report retains three unresolved discrepancies; it is not an authorization.
+4. Open the report's original issues. Create a follow-up for one discrepancy; the source role/action is prefilled where meaningful. Record **In Progress**, then **Action Completed** with a synthetic completion note. Closing/reopening the action returns the same ID and append-only status history.
+5. Show that the equipment fault is still active. Choose **Start Re-verification** from the completed action and create the new independent draft. Separately clear the simulated fault in Demo Controls.
+6. Reopen the original submitted report: its Critical evidence, observations and exceptions remain unchanged. Its clearly separate **Current follow-up actions** panel can open the completed action, but is excluded from both print formats. Restart or Exit Guide; all records remain. Equipment Reset Demo also preserves reviews and follow-ups.
+
+Scope-level actions with no asset link offer a new general Engineering Review instead of inventing an asset association. A re-verification draft being started is not a claim that equipment was re-verified. No formal exception closure or maintenance work-order system is implemented.
+
+### Follow-up and guide storage
+
+| Key | Contents | Reset behavior |
+| --- | --- | --- |
+| `medops.demo.simulation.v1` | Existing synthetic scenarios/history | Reset Demo only |
+| `medops.engineering-reviews.v1` | OT and focused drafts/submissions, frozen evidence/exceptions | Never cleared by equipment or guide reset |
+| `evidanor:followups:v1` | Separate current actions, progress notes and status history | Never cleared by equipment or guide reset |
+| `evidanor:guide:v1` | Current guide session/baseline IDs/view progress | Restart/Exit only |
+
+All actual action timestamps are ISO UTC and display in Asia/Dhaka, BDT (UTC+6). Storage is validated and blocked/quota-limited writes produce explicit in-memory-only warnings. Use Create/Save to retain edits. Browser-local records are not authenticated, synchronized or a durable/tamper-proof archive. Each origin/profile and each deployed visitor has independent records.
+
+Current branch: `feature/v0.3.1-operational-loop`. Cloudflare preflight is documented in [DEPLOYMENT_PREFLIGHT.md](DEPLOYMENT_PREFLIGHT.md); this task does not deploy, push or merge.
 
 ## What's new in v0.3
 
@@ -15,7 +48,7 @@ Evidanor is the provisional product name; no trademark clearance is claimed. The
 - **Engineering Reviews:** clearer progress, required-field guidance, readable System Evidence and Engineer Judgment sections, saved-draft feedback and a submission confirmation explaining read-only records and open exceptions.
 - **Reports:** Evidanor presentation retains both Print Summary and Print Detailed Record, with the existing compact print layouts and complete frozen historical evidence.
 
-No telemetry evaluation, simulation behavior, review schema, validation rules, immutable snapshots or storage formats changed in this milestone. The current working branch is `feature/v0.3-premium-ui`; nothing is automatically pushed, merged or deployed.
+No telemetry evaluation, simulation behavior, review schema, validation rules, immutable snapshots or storage formats changed in this milestone. The v0.3 design milestone was implemented on `feature/v0.3-premium-ui`; nothing is automatically pushed, merged or deployed.
 
 ## Start locally
 
@@ -54,10 +87,10 @@ The project was built using Node 24.22.1. Exact installed dependency versions ar
 
 The sidebar highlights the current page. Browser Back/Forward and direct route refreshes work. Switching primary pages scrolls to the top. Unimplemented modules sit in a collapsed **Planned modules** group with disabled controls.
 
-## Run the Engineering Review demonstration
+## Run the original OT Engineering Review demonstration
 
 1. On Dashboard, expand **Demo Controls** below the operational overview. Use **Reset Demo** to restore 43 Normal / 5 Attention / 1 Critical / 1 Unknown. Activate **Simulate Fault** for AHU-OT-01.
-2. Open **Engineering Reviews → Start New Review**. The only template is **Operating Theatre — Engineering Review**, scoped to the shared fictional OT plant room. Enter a synthetic technician name and role, then start the draft.
+2. Open **Engineering Reviews → Start New Review**. Choose **Operating Theatre — Engineering Review**, scoped to the shared fictional OT plant room. Enter a synthetic technician name and role, then start the draft.
 3. On the air-handling item, inspect AHU-OT-01's Critical condition and 450 Pa reading. Equipment-ID buttons open the existing drawer. Choose **Pass**, a verification method, observations, responsible role and follow-up. Saving requires a reconciliation note; it retains an open discrepancy and leaves the equipment alarm unchanged.
 4. Complete all nine items. For the human-only gas-panel or backup-power-documentation item, choose **Unable to Verify** and explain that the fictional panel/logbook was inaccessible. Add a responsible role and suggested action. Do not claim that placeholder documents prove a test or that a new UPS fault exists.
 5. On monitoring gaps, address each affected in-scope asset separately. On previous issues, explicitly acknowledge every listed issue; acknowledgement does not close it. No answer or method starts preselected.
@@ -96,7 +129,7 @@ Records belong to the browser profile and origin/port. They are not uploaded, sy
 - Dashboard condition summaries open Assets with the chosen condition. Total fleet opens the complete inventory. Affected Systems rows open a system-filtered inventory.
 - Assets defaults to Critical, Unknown, Attention, Normal, then asset ID. Sort by asset ID or equipment name using the sort selector; the ID header also toggles ascending/descending. Search and filters apply before the 25-row pagination.
 - Filter summaries show both matching and total assets. Remove individual filter chips or use **Reset filters**.
-- Alerts distinguish equipment conditions, inspections, maintenance requirements and unavailable monitoring. Active alarms and historical logs have separate sections; no acknowledgement or notification workflow is implemented.
+- Alerts distinguish equipment conditions, inspections, maintenance requirements and unavailable monitoring. Active alarms and historical logs have separate sections; no alarm acknowledgement or notification workflow is implemented.
 - Click equipment or an alert to open the same shared drawer. Close using Escape, the close button, or the shaded backdrop.
 - On mobile, use the menu button to switch pages. The wide equipment table scrolls within its panel.
 
@@ -199,6 +232,11 @@ Suggested demonstration records:
 | `src/enterprise.css` | Central Evidence Navy tokens and responsive screen-only presentation |
 | `src/components/BrandMark.tsx`, `PageHeader.tsx` | Provisional brand mark and common page-heading presentation |
 | `src/lib/assetPresentation.ts` | Existing-point key readings and immutable inventory sorting |
+| `src/reviews/focused.ts` | Selected-asset three-item investigation template factory |
+| `src/followups/` | Independent action model, validated storage, query-selected panel and current-action links |
+| `src/guide/` | Session baseline/progress model, persistence, provider and Dashboard guide |
+| `src/activity/` | Read-time equipment activity projection and compact drawer section |
+| `src/operational.css` | Evidence Navy styling for operational additions; current actions excluded from print |
 | `src/styles.css`                  | Design tokens, common components and responsive layout                        |
 
 The simulated clock is fixed at **27 October 2026, 09:30 BDT (UTC+6)**. Readings and generated transitions use this one simulation clock, never the actual date you open the app. Monotonically increasing sequence numbers distinguish events triggered at the same timestamp; Reset restarts the counter. Review creation, response saves, evidence captures and submission use the actual record clock stored as ISO UTC. Both clocks display explicitly in `Asia/Dhaka`, labeled BDT (UTC+6).
@@ -212,7 +250,7 @@ npm run build
 npm run preview
 ```
 
-`npm test` runs **70 lightweight Node tests**: all 67 v0.2 tests plus three inventory-presentation tests for genuine point selection, evidence validity and immutable sorting. `typecheck` checks TypeScript. `build` checks TypeScript again and produces a static production bundle in **`dist/`**. `preview` serves that bundle locally (normally http://127.0.0.1:4173/); use Ctrl+C to stop it.
+`npm test` runs **93 lightweight Node tests**: all 70 v0.3 tests plus nine follow-up tests, seven focused-investigation tests, four guide tests and three activity tests. `typecheck` checks TypeScript. `build` checks TypeScript again and produces a static production bundle in **`dist/`**. `preview` serves that bundle locally (normally http://127.0.0.1:4173/); use Ctrl+C to stop it.
 
 The Vite base path remains `/`. For eventual Cloudflare Pages hosting, use build command `npm run build` and output directory `dist`. No top-level `404.html` or `_redirects` file is added, preserving [Cloudflare Pages' standard SPA fallback](https://developers.cloudflare.com/pages/configuration/serving-pages/#single-page-application-spa-rendering). Cloudflare deployment has not been performed; direct routes have been tested locally.
 
@@ -222,6 +260,6 @@ Routing follows [React Router's declarative BrowserRouter API](https://reactrout
 
 The v0.1A domain and data modules are unchanged. The initial 50 assets still evaluate to **43 Normal, 5 Attention, 1 Critical and 1 Unknown**, with category totals **14/10/9/9/8**. Engineering follow-up includes the Unknown asset, totaling seven, without claiming seven physical faults. Displayed timestamps use BDT (UTC+6).
 
-Documents remain labeled placeholders with no download action. v0.2 adds exactly one evidence-assisted engineering inspection template. There is no authentication, digital signature, database, backend, real equipment connection, notification, work-order/issue closure, clinical authorization or production safety control. Nothing is published or pushed by this implementation.
+Documents remain labeled placeholders with no download action. v0.2 added the OT template; v0.3.1 adds a focused three-item investigation and separate follow-up actions. There is no authentication, digital signature, database, backend, real equipment connection, notification, work-order/issue closure, clinical authorization or production safety control. Nothing is published or pushed by this implementation.
 
 See **ARCHITECTURE.md** for the data flow and the future telemetry boundary. See **VERIFICATION.md** for executed checks and browser coverage.

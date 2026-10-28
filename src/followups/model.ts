@@ -1,6 +1,7 @@
 import type { ReviewSession } from "../reviews/types";
 import { hasFollowUpText } from "../reviews/followUp";
 import {
+  isActualRecordTime,
   followUpStatuses,
   type ActionClock,
   type FollowUp,
@@ -45,12 +46,18 @@ export function createFollowUp(
     );
   if (errors.length || !exception) return { store, record: null, errors };
   const at = clock.now();
+  if (!isActualRecordTime(at))
+    return {
+      store,
+      record: null,
+      errors: ["The actual record clock is invalid. No follow-up was saved."],
+    };
   const record: FollowUp = {
     id: `FU-${clock.id()}`,
     sourceReviewId: review.id,
     sourceExceptionId: exception.id,
     assetId: exception.assetId,
-    description: exception.observation || exception.itemTitle,
+    description: `${exception.itemTitle} · ${exception.issueType}. ${exception.observation || "No observation recorded."}`,
     responsible: input.responsible.trim(),
     proposedAction: input.proposedAction.trim(),
     status: "Open",
@@ -123,6 +130,13 @@ export function updateFollowUp(
       ],
     };
   const at = clock.now();
+  if (!isActualRecordTime(at) || Date.parse(at) < Date.parse(record.updatedAt))
+    return {
+      record,
+      errors: [
+        "The actual record clock is earlier than the last action update or is invalid. No update was saved.",
+      ],
+    };
   return {
     record: {
       ...record,

@@ -181,7 +181,7 @@ export function AppLayout() {
               <strong>Engineering team</strong>
               <small>Demo workspace</small>
             </div>
-            <small className="sidebar-version">v0.3</small>
+            <small className="sidebar-version">v0.3.1</small>
           </div>
         </div>
       </aside>
@@ -260,7 +260,7 @@ export function AppLayout() {
             </span>
             <span>
               <Check size={13} />
-              Synthetic demonstration · v0.3
+              Synthetic demonstration · v0.3.1
             </span>
           </footer>
         </main>

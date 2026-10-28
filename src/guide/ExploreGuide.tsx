@@ -104,6 +104,13 @@ export function ExploreGuide() {
                           : "Simulate AHU Fault"}
                       </button>
                     )}
+                    {index === 0 &&
+                      data.simulation.connections[FAULT_ASSET_ID] && (
+                        <p className="review-field-hint">
+                          Restore monitoring using Demo Controls before
+                          injecting a new fault.
+                        </p>
+                      )}
                     {index === 1 && (
                       <Link
                         className="text-link"

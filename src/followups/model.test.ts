@@ -105,11 +105,41 @@ const edit = (
   status,
   note,
 });
+test("invalid or backwards action clocks cannot create an unrestorable history", () => {
+  const { record, review, exception } = created(),
+    before = JSON.stringify(record);
+  const backwards = { ...clock, now: () => "2026-10-28T01:00:00.000Z" };
+  assert.ok(
+    updateFollowUp(record, edit(record, "In Progress"), backwards).errors.some(
+      (error) => error.includes("clock"),
+    ),
+  );
+  assert.equal(JSON.stringify(record), before);
+  assert.ok(
+    updateFollowUp(record, edit(record, "In Progress"), {
+      ...clock,
+      now: () => "2026-10-29T07:00:00+06:00",
+    }).errors.length,
+  );
+  assert.ok(
+    createFollowUp(
+      emptyFollowUps(),
+      review,
+      exception.id,
+      {
+        responsible: "Demo engineer",
+        proposedAction: "Inspect the recorded indication.",
+      },
+      { ...clock, now: () => "invalid" },
+    ).errors.length,
+  );
+});
 test("follow-up creation retains source identity and enforces one primary action per submitted exception", () => {
   const { review, exception, store, record } = created();
   assert.equal(record.status, "Open");
   assert.equal(record.assetId, "AHU-OT-01");
   assert.equal(record.sourceExceptionId, exception.id);
+  assert.ok(record.description.includes(exception.issueType));
   const again = createFollowUp(
     store,
     review,

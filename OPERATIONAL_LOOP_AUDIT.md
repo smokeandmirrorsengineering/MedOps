@@ -14,4 +14,6 @@ Baseline: clean v0.3 commit `41a115c`; feature branch `feature/v0.3.1-operationa
 
 **Decision:** Focused Investigation can proceed through bounded selection/binding/validation changes. The core review engine does not need a rewrite. Regression coverage must keep the original OT persistence path and frozen reports valid before enabling the second template.
 
+**Implemented outcome:** the original OT template source is unchanged. The existing storage key/schema remains version 1, with a separate focused-template validation branch, record-specific evidence whitelists and optional subject/source fields. Mixed legacy OT and focused records round-trip together. Three-item Critical/Unknown reconciliation, independent draft IDs, frozen reports and a new re-verification draft were exercised by automated tests and the browser walkthrough.
+
 Follow-ups remain separate operational records under `evidanor:followups:v1`. Current actions link outside the historical report article and are excluded from printing. Action Completed never resolves an inspection exception or changes equipment evidence. Guide progress and asset activity are separate projections of actual records; guide restart cannot delete them.

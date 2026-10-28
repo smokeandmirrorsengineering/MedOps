@@ -1,7 +1,12 @@
 import type { SimulationStorage } from "../simulation/persistence";
 import { hasFollowUpText } from "../reviews/followUp";
 import { sourceKey, validTransition } from "./model";
-import { followUpStatuses, type FollowUp, type FollowUpStore } from "./types";
+import {
+  followUpStatuses,
+  isActualRecordTime,
+  type FollowUp,
+  type FollowUpStore,
+} from "./types";
 export const FOLLOW_UP_KEY = "evidanor:followups:v1";
 export const emptyFollowUps = (): FollowUpStore => ({
   schemaVersion: 1,
@@ -10,10 +15,7 @@ export const emptyFollowUps = (): FollowUpStore => ({
 const obj = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === "object" && !Array.isArray(value);
 const text = (value: unknown): value is string => typeof value === "string";
-const date = (value: unknown): value is string =>
-  text(value) &&
-  /^\d{4}-\d\d-\d\dT.*Z$/.test(value) &&
-  Number.isFinite(Date.parse(value));
+const date = isActualRecordTime;
 export function validFollowUp(value: unknown): value is FollowUp {
   if (
     !obj(value) ||
