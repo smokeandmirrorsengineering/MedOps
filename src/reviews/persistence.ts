@@ -167,6 +167,7 @@ export function validReview(v: unknown): v is ReviewSession {
   if (
     !obj(v) ||
     !nonempty(v.id) ||
+    !/^REV-[A-Za-z0-9-]+$/.test(v.id) ||
     !template(v.template) ||
     v.scopeId !== v.template.scopeId ||
     v.scope !== v.template.scope ||

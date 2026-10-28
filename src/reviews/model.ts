@@ -90,6 +90,23 @@ export function responseErrors(
   const assets =
     item.kind === "gaps" ? [] : applicableAssets(item, response.evidence);
   const errors = verificationErrors(response, item, assets);
+  if (
+    new Set(response.gaps.map((gap) => gap.assetId)).size !==
+    response.gaps.length
+  )
+    errors.push("Each affected asset must have one gap verification.");
+  if (
+    response.gaps.some(
+      (gap) =>
+        item.kind !== "gaps" ||
+        !response.evidence.assets.some(
+          (asset) => asset.id === gap.assetId && isGap(asset),
+        ),
+    )
+  )
+    errors.push(
+      "Gap verifications must refer only to affected assets in this item.",
+    );
   if (item.kind === "gaps")
     for (const asset of response.evidence.assets.filter(isGap)) {
       const gap = response.gaps.find((gap) => gap.assetId === asset.id);

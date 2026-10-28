@@ -16,6 +16,8 @@ import { StatusBadge } from "./StatusBadge";
 import { ScenarioActions, SimulationBadge } from "./DemoControls";
 import { useDemoData } from "../state/DemoDataProvider";
 import { isConnectionAsset } from "../simulation/types";
+import { Link } from "react-router";
+import { useReviews } from "../reviews/ReviewProvider";
 
 export function AssetDrawer({
   asset,
@@ -30,6 +32,12 @@ export function AssetDrawer({
   const close = useRef<HTMLButtonElement>(null);
   const { history, seedEvents, getAssetSimulation } = useDemoData();
   const scenario = getAssetSimulation(asset.id);
+  const { sessions } = useReviews();
+  const relatedReviews = sessions.filter((review) =>
+    Object.values(review.responses).some((response) =>
+      response.evidence.assets.some((evidence) => evidence.id === asset.id),
+    ),
+  );
   const closeAction = useRef(onClose);
   useEffect(() => {
     closeAction.current = onClose;
@@ -351,6 +359,25 @@ export function AssetDrawer({
               ))}
             </div>
           </section>
+          <p className="drawer-disclaimer">
+            Related Engineering Reviews: {relatedReviews.length}
+          </p>
+          {relatedReviews.length > 0 && (
+            <section className="detail-section">
+              <h3>Recorded engineering reviews</h3>
+              {relatedReviews.map((review) => (
+                <p key={review.id} className="review-small-note">
+                  <Link
+                    className="text-link"
+                    to={`/reviews/${review.id}/${review.status === "Submitted" ? "report" : "run"}`}
+                    onClick={onClose}
+                  >
+                    {review.status} · {review.technician} · {review.id}
+                  </Link>
+                </p>
+              ))}
+            </section>
+          )}
           <p className="drawer-disclaimer">
             Synthetic equipment, readings and service records. For product
             demonstration only.

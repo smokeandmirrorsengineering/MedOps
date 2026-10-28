@@ -423,3 +423,107 @@ test("blocked and quota-limited review storage returns failure without claiming 
   assert.equal(readReviews(storage).status, "unavailable");
   assert.equal(writeReviews(storage, emptyReviews()), false);
 });
+
+test("Unknown evidence requires Pass reconciliation and preserves last-known data quality", () => {
+  const overlay = reduce(initialOverlay(demoSnapshot), {
+    type: "LOSE_CONNECTION",
+    assetId: "AHU-OT-01",
+  });
+  const snapshot = effectiveSnapshot(demoSnapshot, overlay),
+    e = evidence(snapshot);
+  assert.equal(e.assets[0].condition, "Unknown");
+  assert.equal(e.assets[0].readings[0].validity, "Last known / unavailable");
+  assert.ok(
+    saveResponse(
+      create(),
+      item.id,
+      { ...input(), reconciliation: "" },
+      e,
+      clock,
+    ).errors.some((error) => error.includes("reconciliation")),
+  );
+});
+test("refreshing a draft removes an obsolete Critical discrepancy but preserves another active discrepancy", () => {
+  const before = saveResponse(
+    create(),
+    item.id,
+    input(),
+    evidence(faulty),
+    clock,
+  ).review;
+  const after = saveResponse(before, item.id, input(), evidence(), clock, {
+    refresh: true,
+  }).review;
+  assert.ok(
+    !after.exceptions.some((exception) => exception.assetId === "AHU-OT-01"),
+  );
+  assert.ok(
+    after.exceptions.some(
+      (exception) =>
+        exception.assetId === "AHU-OT-02" &&
+        exception.issueType === "Evidence discrepancy",
+    ),
+  );
+});
+test("a new in-scope gap can be explicitly retained with an asset-linked change exception", () => {
+  const row = otTemplate.items[6];
+  let review = saveResponse(
+    create(),
+    row.id,
+    input(),
+    evidence(demoSnapshot, 6),
+    clock,
+  ).review;
+  const overlay = reduce(initialOverlay(demoSnapshot), {
+    type: "LOSE_CONNECTION",
+    assetId: "AHU-OT-01",
+  });
+  const next = evidence(effectiveSnapshot(demoSnapshot, overlay), 6);
+  const result = saveResponse(review, row.id, input(), next, clock, {
+    retentionNote:
+      "Monitoring was lost after my saved observation. Retain the observation and investigate this asset's data gap.",
+  });
+  assert.deepEqual(result.errors, []);
+  assert.ok(
+    result.review.exceptions.some(
+      (exception) =>
+        exception.assetId === "AHU-OT-01" &&
+        exception.issueType === "Evidence changed",
+    ),
+  );
+});
+test("quality and stale availability changes are meaningful but alarm timestamps alone are not", () => {
+  const original = evidence(),
+    same = structuredClone(original);
+  same.assets[1].alarms[0].timestamp = "2026-10-27T03:29:00.000Z";
+  assert.deepEqual(evidenceChanges(original, same, item), []);
+  same.assets[0].readings[0].quality = "Uncertain";
+  assert.ok(evidenceChanges(original, same, item).length);
+  const stale = { ...demoSnapshot, now: "2026-10-28T03:30:00.000Z" };
+  assert.ok(evidence(stale, 6).assets.some(isGap));
+});
+test("tampered submitted evidence, responses and exception fields fail review-storage validation", () => {
+  const draft = completed(faulty),
+    submitted = submitReview(draft, current(draft, faulty), clock).review;
+  for (const mutate of [
+    (r: ReviewSession) => {
+      r.responses[item.id].choice = "";
+    },
+    (r: ReviewSession) => {
+      r.responses[item.id].evidence.assets[0].id = "FRG-BB-01";
+    },
+    (r: ReviewSession) => {
+      r.exceptions = [];
+    },
+    (r: ReviewSession) => {
+      r.submittedAt = null;
+    },
+  ]) {
+    const bad = structuredClone(submitted);
+    mutate(bad);
+    assert.equal(
+      deserializeReviews(JSON.stringify({ schemaVersion: 1, sessions: [bad] })),
+      null,
+    );
+  }
+});

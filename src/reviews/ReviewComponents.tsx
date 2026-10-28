@@ -150,7 +150,10 @@ export function EvidenceView({
                   {reading.value ?? "—"} {reading.unit}
                 </strong>
                 <small>
-                  {reading.quality} · {reading.validity}
+                  {reading.quality} ·{" "}
+                  {!interactive && reading.validity === "Current simulated"
+                    ? "Valid at capture (synthetic)"
+                    : reading.validity}
                   <br />
                   {time(reading.timestamp)} BDT
                 </small>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Link,
   Navigate,
@@ -335,6 +335,10 @@ export function ReviewRunnerPage() {
   const review = reviews.sessions.find((review) => review.id === reviewId);
   const [errors, setErrors] = useState<string[]>([]);
   const [summary, setSummary] = useState(review?.summary ?? "");
+  useEffect(() => {
+    setSummary(review?.summary ?? "");
+    setErrors([]);
+  }, [reviewId]);
   if (!review) return <ReviewMissing />;
   if (review.status === "Submitted")
     return <Navigate to={`/reviews/${review.id}/report`} replace />;
@@ -405,14 +409,26 @@ export function ReviewRunnerPage() {
           >
             Save summary observations
           </button>
-          <Link
-            className="text-link"
-            to={`/reviews/issues?review=${review.id}`}
-          >
-            {review.exceptions.length} draft exceptions (submitted issues are
-            shown in Open Issues)
-          </Link>
+          <span className="review-small-note">
+            {review.exceptions.length} current draft exceptions
+          </span>
         </div>
+        {review.exceptions.length > 0 && (
+          <details className="review-draft-exceptions">
+            <summary>Review draft exceptions and ownership</summary>
+            {review.exceptions.map((exception) => (
+              <div className="report-exception" key={exception.id}>
+                <strong>
+                  {exception.itemTitle} · {exception.assetId ?? "Scope"} ·{" "}
+                  {exception.issueType}
+                </strong>
+                <p>{exception.observation}</p>
+                <p>Responsible: {exception.responsible}</p>
+                <p>Suggested follow-up: {exception.followUp}</p>
+              </div>
+            ))}
+          </details>
+        )}
         <p className="review-caution">
           Submission checks all saved responses and meaningful evidence changes.
           Open exceptions may remain. Submitted means the inspection record was
