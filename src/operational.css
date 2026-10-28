@@ -80,6 +80,16 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+}
+.operational-content > * {
+  flex-shrink: 0;
+}
+.followup-drawer .drawer-header {
+  height: auto;
+  min-height: 72px;
 }
 .operational-content p {
   font-size: 14px;
@@ -189,5 +199,154 @@
   .current-followups,
   .explore-guide {
     display: none !important;
+  }
+}
+.explore-guide {
+  margin-top: 24px;
+}
+.explore-guide > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  font-size: 14px;
+  color: var(--secondary);
+  list-style: none;
+  cursor: pointer;
+}
+.explore-guide summary::-webkit-details-marker {
+  display: none;
+}
+.explore-guide summary > span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.explore-guide summary > svg:last-child {
+  margin-left: auto;
+}
+.explore-content {
+  border-top: 1px solid var(--border);
+  padding: 20px 24px;
+}
+.explore-content > p {
+  font-size: 13px;
+  color: var(--secondary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.explore-content ol {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.explore-content li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.guide-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  font-size: 13px;
+  background: var(--canvas);
+  color: var(--secondary);
+  border-radius: 50%;
+}
+.guide-step-number.is-recorded {
+  background: var(--teal-soft);
+  color: var(--teal);
+}
+.explore-content li > div {
+  min-width: 0;
+}
+.explore-content li h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.explore-content li h3 small {
+  display: inline-block;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: 8px;
+}
+.explore-content li p {
+  font-size: 13px;
+  color: var(--secondary);
+  line-height: 1.6;
+  margin: 8px 0 12px;
+}
+.guide-step-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.guide-session-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.guide-session-bar small {
+  color: var(--muted);
+  font-size: 12px;
+  margin-right: auto;
+  overflow-wrap: anywhere;
+}
+.explore-content .guide-reset-note {
+  margin-top: 20px;
+  margin-bottom: 0;
+  font-size: 12px;
+}
+.equipment-activity > div {
+  border-left: 2px solid var(--border);
+  padding: 0 0 16px 16px;
+  margin-top: 16px;
+}
+.equipment-activity > div > span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.equipment-activity small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.equipment-activity a {
+  font-size: 13px;
+  line-height: 1.5;
+}
+@media screen and (max-width: 760px) {
+  .focused-intro {
+    padding: 20px;
+    flex-wrap: wrap;
+  }
+  .explore-content {
+    padding: 20px;
+  }
+  .explore-content ol {
+    grid-template-columns: 1fr;
+  }
+  .explore-guide > summary {
+    flex-wrap: wrap;
+  }
+  .explore-guide summary > span {
+    flex: 1;
   }
 }

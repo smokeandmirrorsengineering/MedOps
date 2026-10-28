@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Activity, ChevronRight, Clock3, FileText, X } from "lucide-react";
-import type { Asset, AssetEvent, Evaluation, Snapshot } from "../domain/types";
+import { Activity, ChevronRight, FileText, X } from "lucide-react";
+import type { Asset, Evaluation, Snapshot } from "../domain/types";
 import { latestReading } from "../domain/evaluateAsset";
 import { date, time } from "../lib/format";
 import { StatusBadge } from "./StatusBadge";
@@ -9,6 +9,8 @@ import { useDemoData } from "../state/DemoDataProvider";
 import { isConnectionAsset } from "../simulation/types";
 import { Link } from "react-router";
 import { useReviews } from "../reviews/ReviewProvider";
+import { useGuide } from "../guide/GuideProvider";
+import { EquipmentActivity } from "../activity/EquipmentActivity";
 
 export function AssetDrawer({
   asset,
@@ -21,15 +23,21 @@ export function AssetDrawer({
 }) {
   const panel = useRef<HTMLDivElement>(null);
   const close = useRef<HTMLButtonElement>(null);
-  const { history, seedEvents, getAssetSimulation } = useDemoData();
+  const { getAssetSimulation } = useDemoData();
+  const guide = useGuide();
+  useEffect(
+    () => guide.noteAssetViewed(asset.id, asset.condition !== "Normal"),
+    [asset.id, asset.condition, guide.session?.id, guide.noteAssetViewed],
+  );
   const scenario = getAssetSimulation(asset.id);
   const { sessions } = useReviews();
   const relatedReviews = sessions.filter(
     (review) =>
-      review.subjectAssetId === asset.id ||
-      Object.values(review.responses).some((response) =>
-        response.evidence.assets.some((evidence) => evidence.id === asset.id),
-      ),
+      review.status === "Draft" &&
+      (review.subjectAssetId === asset.id ||
+        Object.values(review.responses).some((response) =>
+          response.evidence.assets.some((evidence) => evidence.id === asset.id),
+        )),
   );
   const closeAction = useRef(onClose);
   useEffect(() => {
@@ -38,17 +46,6 @@ export function AssetDrawer({
   const location = snapshot.locations.find((l) => l.id === asset.locationId)!;
   const maintenance = snapshot.maintenance.filter(
     (m) => m.assetId === asset.id,
-  );
-  const events: (AssetEvent & { sequence?: number })[] = [
-    ...seedEvents.filter((event) => event.assetId === asset.id),
-    ...history
-      .filter((event) => event.assetId === asset.id)
-      .map((event) => ({ ...event, active: false })),
-  ];
-  events.sort(
-    (a, b) =>
-      Date.parse(b.timestamp) - Date.parse(a.timestamp) ||
-      (b.sequence ?? 0) - (a.sequence ?? 0),
   );
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -324,37 +321,13 @@ export function AssetDrawer({
                 </div>
               ))}
           </details>
-          <section className="detail-section">
-            <h3>
-              <Clock3 size={16} />
-              Recent events
-            </h3>
-            <div className="event-timeline">
-              {events.map((event) => (
-                <div key={event.id}>
-                  <span
-                    className={`timeline-dot ${event.severity.toLowerCase()}`}
-                  />
-                  <strong>{event.title}</strong>
-                  <p>{event.description}</p>
-                  <small>
-                    {date(event.timestamp)} · {time(event.timestamp)} BDT ·{" "}
-                    {event.sequence
-                      ? `Recorded · #${event.sequence}`
-                      : event.active
-                        ? "Open seed alarm"
-                        : "Recorded"}
-                  </small>
-                </div>
-              ))}
-            </div>
-          </section>
+          <EquipmentActivity assetId={asset.id} />
           <p className="drawer-disclaimer">
-            Related Engineering Reviews: {relatedReviews.length}
+            In-progress engineering drafts: {relatedReviews.length}
           </p>
           {relatedReviews.length > 0 && (
             <section className="detail-section">
-              <h3>Recorded engineering reviews</h3>
+              <h3>In-progress engineering reviews</h3>
               {relatedReviews.map((review) => (
                 <p key={review.id} className="review-small-note">
                   <Link

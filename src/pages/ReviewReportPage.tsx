@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router";
 import { Printer } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import { CurrentFollowUps } from "../followups/CurrentFollowUps";
+import { useGuide } from "../guide/GuideProvider";
 import { useReviews } from "../reviews/ReviewProvider";
 import { AUTHORIZATION_STATEMENT } from "../reviews/types";
 import type { HumanVerification } from "../reviews/types";
@@ -50,12 +51,16 @@ function VerificationRecord({ value }: { value: HumanVerification }) {
   );
 }
 export function ReviewReportPage() {
+  const guide = useGuide();
   const [screenMode, setScreenMode] = useState<"summary" | "detailed">(
     "summary",
   );
   const { reviewId } = useParams(),
     { sessions } = useReviews();
   const review = sessions.find((review) => review.id === reviewId);
+  useEffect(() => {
+    if (review?.status === "Submitted") guide.noteReportViewed(review.id);
+  }, [review?.id, review?.status, guide.session?.id, guide.noteReportViewed]);
   useEffect(() => {
     document.body.classList.add("review-report-view");
     document.body.dataset.reviewPrint = "summary";

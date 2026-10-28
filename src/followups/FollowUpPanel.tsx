@@ -154,7 +154,7 @@ function FollowUpEditor({
             <X size={20} />
           </button>
         </header>
-        <div className="drawer-content operational-content">
+        <div className="drawer-body drawer-content operational-content">
           {!record && (!review || !exception) ? (
             <>
               <h2>Source record unavailable</h2>
@@ -293,6 +293,11 @@ function FollowUpEditor({
                       to={`/reviews/new?template=focused&subject=${encodeURIComponent(record.assetId)}&fromFollowUp=${encodeURIComponent(record.id)}`}
                     >
                       Start Re-verification
+                    </Link>
+                  )}
+                  {!record?.assetId && (
+                    <Link className="review-secondary" to="/reviews/new">
+                      Start a new Engineering Review
                     </Link>
                   )}
                 </div>

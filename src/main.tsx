@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router";
 import { DemoDataProvider } from "./state/DemoDataProvider";
 import { ReviewProvider } from "./reviews/ReviewProvider";
 import { FollowUpProvider } from "./followups/FollowUpProvider";
+import { GuideProvider } from "./guide/GuideProvider";
 import "./styles.css";
 import "./reviews/reviews.css";
 import "./reviews/report.css";
@@ -18,7 +19,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <DemoDataProvider>
         <ReviewProvider>
           <FollowUpProvider>
-            <App />
+            <GuideProvider>
+              <App />
+            </GuideProvider>
           </FollowUpProvider>
         </ReviewProvider>
       </DemoDataProvider>
