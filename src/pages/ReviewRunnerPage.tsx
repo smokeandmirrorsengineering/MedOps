@@ -205,11 +205,11 @@ function ItemEditor({
           )}
         </div>
         <div className="review-human-column">
-          <h3>B. Human Verification</h3>
+          <h3>B. Engineer Judgment</h3>
           <p className="review-small-note">
-            No response is automatic. Pass records your assessment, not a MedOps
-            safety determination. Save explicitly; unsaved edits are not
-            retained when leaving this item.
+            No response is automatic. Pass records your assessment, not an
+            Evidanor safety determination. Save explicitly; unsaved edits are
+            not retained when leaving this item.
           </p>
           <HumanFields
             value={form}
@@ -335,9 +335,11 @@ export function ReviewRunnerPage() {
   const review = reviews.sessions.find((review) => review.id === reviewId);
   const [errors, setErrors] = useState<string[]>([]);
   const [summary, setSummary] = useState(review?.summary ?? "");
+  const [confirmSubmission, setConfirmSubmission] = useState(false);
   useEffect(() => {
     setSummary(review?.summary ?? "");
     setErrors([]);
+    setConfirmSubmission(false);
   }, [reviewId]);
   if (!review) return <ReviewMissing />;
   if (review.status === "Submitted")
@@ -357,6 +359,20 @@ export function ReviewRunnerPage() {
       />
       <ReviewNav />
       <ReviewStorageNotice />
+      <div
+        className="review-progress"
+        role="progressbar"
+        aria-label="Saved checklist responses"
+        aria-valuemin={0}
+        aria-valuemax={review.template.items.length}
+        aria-valuenow={Object.keys(review.responses).length}
+      >
+        <span
+          style={{
+            width: `${(Object.keys(review.responses).length / review.template.items.length) * 100}%`,
+          }}
+        />
+      </div>
       <div className="review-run-meta">
         <strong>
           {review.template.title} · v{review.template.version}
@@ -431,8 +447,8 @@ export function ReviewRunnerPage() {
         )}
         <p className="review-caution">
           Submission checks all saved responses and meaningful evidence changes.
-          Open exceptions may remain. Submitted means the inspection record was
-          recorded; it is not an authorization for use.
+          The submitted record becomes read-only. Open exceptions may remain.
+          Submission records the inspection; it is not an authorization for use.
         </p>
         <p className="review-authorization">{AUTHORIZATION_STATEMENT}</p>
         {errors.length > 0 && (
@@ -449,17 +465,49 @@ export function ReviewRunnerPage() {
             </p>
           </div>
         )}
-        <button
-          className="review-primary"
-          onClick={() => {
-            reviews.summary(review.id, summary);
-            const result = reviews.submit(review.id);
-            setErrors(result);
-            if (!result.length) navigate(`/reviews/${review.id}/report`);
-          }}
-        >
-          Submit Review
-        </button>
+        {!confirmSubmission ? (
+          <button
+            className="review-primary"
+            onClick={() => setConfirmSubmission(true)}
+          >
+            Submit Review
+          </button>
+        ) : (
+          <div
+            className="review-submit-confirm"
+            role="group"
+            aria-label="Confirm review submission"
+          >
+            <h3>Submit this inspection record?</h3>
+            <p>
+              The record and its captured evidence will become read-only.{" "}
+              {review.exceptions.length} recorded exception(s) will remain open.
+              Required information and evidence changes will be checked before
+              submission.
+            </p>
+            <div className="review-actions">
+              <button
+                className="review-secondary"
+                onClick={() => setConfirmSubmission(false)}
+              >
+                Continue editing
+              </button>
+              <button
+                className="review-primary"
+                autoFocus
+                onClick={() => {
+                  reviews.summary(review.id, summary);
+                  const result = reviews.submit(review.id);
+                  setErrors(result);
+                  setConfirmSubmission(false);
+                  if (!result.length) navigate(`/reviews/${review.id}/report`);
+                }}
+              >
+                Confirm submission
+              </button>
+            </div>
+          </div>
+        )}
       </section>
     </>
   );

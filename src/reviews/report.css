@@ -57,8 +57,9 @@
   font-size: 25px;
 }
 .executive-brand svg {
-  background: #0e8c80;
-  padding: 4px;
+  background: transparent;
+  padding: 0;
+  color: var(--teal);
   box-sizing: content-box;
   border-radius: 6px;
 }

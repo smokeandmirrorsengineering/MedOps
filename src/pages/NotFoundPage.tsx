@@ -8,7 +8,7 @@ export function NotFoundPage() {
       <PageHeading
         page="Not found"
         title="Page not found"
-        description="This address does not match a page in the MedOps demo."
+        description="This address does not match a page in the Evidanor demo."
       />
       <section className="panel empty-state">
         <Map size={30} />

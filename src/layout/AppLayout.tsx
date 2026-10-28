@@ -91,7 +91,9 @@ export function AppLayout() {
 
   return (
     <div className="app-shell" id="dashboard-top">
-      <a className="skip-link" href="#main-content">Skip to main content</a>
+      <a className="skip-link" href="#main-content">
+        Skip to main content
+      </a>
       {mobileNav && (
         <div className="sidebar-scrim" onClick={() => setMobileNav(false)} />
       )}
@@ -124,37 +126,54 @@ export function AppLayout() {
         <div className="workspace-label">WORKSPACE</div>
 
         <nav>
-          {nav.filter((item) => item.path).map((item) =>
-            item.path ? (
-              <NavLink
-                key={item.name}
-                to={item.path}
-                onClick={() => setMobileNav(false)}
-                className={({ isActive }) =>
-                  "nav-item" + (isActive ? " active" : "")
-                }
-              >
-                <item.icon size={18} />
-                <span>{item.name}</span>
-                {item.name === "Alerts" && (
-                  <span className="nav-count">{activeEvents.length}</span>
-                )}
-              </NavLink>
-            ) : (
-              <button key={item.name} className="nav-item" disabled>
-                <item.icon size={18} />
-                <span>{item.name}</span>
-                <small>Coming soon</small>
-              </button>
-            ),
-          )}
+          {nav
+            .filter((item) => item.path)
+            .map((item) =>
+              item.path ? (
+                <NavLink
+                  key={item.name}
+                  to={item.path}
+                  onClick={() => setMobileNav(false)}
+                  className={({ isActive }) =>
+                    "nav-item" + (isActive ? " active" : "")
+                  }
+                >
+                  <item.icon size={18} />
+                  <span>{item.name}</span>
+                  {item.name === "Alerts" && (
+                    <span className="nav-count">{activeEvents.length}</span>
+                  )}
+                </NavLink>
+              ) : (
+                <button key={item.name} className="nav-item" disabled>
+                  <item.icon size={18} />
+                  <span>{item.name}</span>
+                  <small>Coming soon</small>
+                </button>
+              ),
+            )}
         </nav>
-        <details className="planned-nav"><summary>Planned modules</summary><div>
-          {nav.filter((item) => !item.path).map((item) => <button key={item.name} className="nav-item" disabled><item.icon size={17}/><span>{item.name}</span><small>Planned</small></button>)}
-        </div></details>
+        <details className="planned-nav">
+          <summary>Planned modules</summary>
+          <div>
+            {nav
+              .filter((item) => !item.path)
+              .map((item) => (
+                <button key={item.name} className="nav-item" disabled>
+                  <item.icon size={17} />
+                  <span>{item.name}</span>
+                  <small>Planned</small>
+                </button>
+              ))}
+          </div>
+        </details>
 
         <div className="sidebar-bottom">
-          <p className="sidebar-positioning">Infrastructure intelligence,<br/>grounded in evidence.</p>
+          <p className="sidebar-positioning">
+            Infrastructure intelligence,
+            <br />
+            grounded in evidence.
+          </p>
           <div className="profile">
             <span className="avatar">EN</span>
             <div>
@@ -187,7 +206,19 @@ export function AppLayout() {
             </div>
           </div>
           <div className="topbar-right">
-            <details className="synthetic-indicator"><summary><FlaskConical size={16}/><span>Synthetic Demonstration Data</span><Info size={14}/></summary><p>Fictional equipment, readings and limits for product demonstration. This is a simulated snapshot, not a live connection. Controls never command real equipment. Human review records do not authorize equipment use.</p></details>
+            <details className="synthetic-indicator">
+              <summary>
+                <FlaskConical size={16} />
+                <span>Synthetic Demonstration Data</span>
+                <Info size={14} />
+              </summary>
+              <p>
+                Fictional equipment, readings and limits for product
+                demonstration. This is a simulated snapshot, not a live
+                connection. Controls never command real equipment. Human review
+                records do not authorize equipment use.
+              </p>
+            </details>
             <span className="topbar-divider" />
             <button
               className="notification-button"

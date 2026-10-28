@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { Activity, Printer } from "lucide-react";
+import { Printer } from "lucide-react";
+import { BrandMark } from "../components/BrandMark";
 import { useReviews } from "../reviews/ReviewProvider";
 import { AUTHORIZATION_STATEMENT } from "../reviews/types";
 import type { HumanVerification } from "../reviews/types";
@@ -127,13 +128,13 @@ export function ReviewReportPage() {
         </div>
         <article className="panel review-report report-detailed-format">
           <div className="review-print-banner">
-            MedOps · SIMULATED DATA · Engineering inspection record ·{" "}
+            Evidanor · SIMULATED DATA · Engineering inspection record ·{" "}
             {review.id}
           </div>
           <header className="review-report-heading">
             <div className="review-report-brand">
-              <Activity size={23} />
-              MedOps
+              <BrandMark size={30} />
+              Evidanor
             </div>
             <span className="review-synthetic-label">SIMULATED DATA</span>
             <h1>{review.template.title}</h1>

@@ -1,10 +1,5 @@
 import { Link } from "react-router";
-import {
-  ArrowLeft,
-  ChevronRight,
-  ClipboardCheck,
-  ExternalLink,
-} from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { StatusBadge } from "../components/StatusBadge";
 import { useAssetSelection } from "../state/useAssetSelection";
 import { date, time } from "../lib/format";
@@ -26,7 +21,11 @@ export function ReviewHeader({
   description: string;
 }) {
   return (
-    <PageHeader page={<Link to="/reviews">Engineering Reviews</Link>} title={title} description={description}/>
+    <PageHeader
+      page={<Link to="/reviews">Engineering Reviews</Link>}
+      title={title}
+      description={description}
+    />
   );
 }
 export function ReviewNav() {
@@ -222,12 +221,24 @@ export function HumanFields({
           }
         />
       )}
+      {key === "responsible" || key === "followUp" ? (
+        <small className="review-field-hint">
+          Required for open exceptions; use meaningful information rather than
+          N/A.
+        </small>
+      ) : key === "reconciliation" ? (
+        <small className="review-field-hint">
+          Required when Pass conflicts with Critical or Unknown evidence.
+        </small>
+      ) : null}
     </label>
   );
   return (
     <div className="review-human-fields">
       <fieldset className="review-response-choices">
-        <legend>{prefix}Human response</legend>
+        <legend>
+          {prefix}Human response <span className="required-hint">Required</span>
+        </legend>
         {item.allowedResponses.map((choice) => (
           <label key={choice}>
             <input
@@ -258,6 +269,10 @@ export function HumanFields({
             <option key={method}>{method}</option>
           ))}
         </select>
+        <small className="review-field-hint">
+          Required for Pass, Attention and Fail. No method is selected
+          automatically.
+        </small>
       </label>
       {field("observation", "Human observations")}
       {field("notes", "Supporting notes (optional)")}

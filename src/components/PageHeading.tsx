@@ -17,7 +17,17 @@ export function PageHeading({
 }) {
   const { snapshot } = useDemoData();
   return (
-    <PageHeader page={page} title={title} description={description} actions={actions}
-      meta={<><Clock3 size={14} /> Simulated snapshot · {date(snapshot.now)} · {time(snapshot.now)} BDT (UTC+6)</>} />
+    <PageHeader
+      page={page}
+      title={title}
+      description={description}
+      actions={actions}
+      meta={
+        <>
+          <Clock3 size={14} /> Simulated snapshot · {date(snapshot.now)} ·{" "}
+          {time(snapshot.now)} BDT (UTC+6)
+        </>
+      }
+    />
   );
 }

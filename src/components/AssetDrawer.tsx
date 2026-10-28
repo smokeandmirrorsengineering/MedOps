@@ -1,14 +1,5 @@
 import { useEffect, useRef } from "react";
-import {
-  Activity,
-  ChevronRight,
-  Clock3,
-  FileText,
-  MapPin,
-  Radio,
-  Wrench,
-  X,
-} from "lucide-react";
+import { Activity, ChevronRight, Clock3, FileText, X } from "lucide-react";
 import type { Asset, AssetEvent, Evaluation, Snapshot } from "../domain/types";
 import { latestReading } from "../domain/evaluateAsset";
 import { date, time } from "../lib/format";
@@ -65,9 +56,11 @@ export function AssetDrawer({
     function handleKey(event: KeyboardEvent) {
       if (event.key === "Escape") closeAction.current();
       if (event.key === "Tab") {
-        const controls = [...(panel.current?.querySelectorAll<HTMLElement>(
-          'button:not(:disabled), a[href], input, select, summary, [tabindex="0"]',
-        ) ?? [])].filter(element => element.getClientRects().length > 0);
+        const controls = [
+          ...(panel.current?.querySelectorAll<HTMLElement>(
+            'button:not(:disabled), a[href], input, select, summary, [tabindex="0"]',
+          ) ?? []),
+        ].filter((element) => element.getClientRects().length > 0);
         if (!controls?.length) return;
         const first = controls[0],
           last = controls[controls.length - 1];

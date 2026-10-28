@@ -1,4 +1,4 @@
-import { Activity } from "lucide-react";
+import { BrandMark } from "../components/BrandMark";
 import { recordTime } from "./ReviewComponents";
 import { buildReviewSummary } from "./report";
 import { AUTHORIZATION_STATEMENT, type ReviewSession } from "./types";
@@ -11,12 +11,12 @@ export function ReviewSummary({ review }: { review: ReviewSession }) {
       aria-label="Engineering Review Summary"
     >
       <div className="review-print-banner">
-        MedOps · SIMULATED DATA · Engineering Review Summary · {review.id}
+        Evidanor · SIMULATED DATA · Engineering Review Summary · {review.id}
       </div>
       <header className="executive-brand-bar">
         <div className="executive-brand">
-          <Activity size={24} />
-          <strong>MedOps</strong>
+          <BrandMark size={32} />
+          <strong>Evidanor</strong>
         </div>
         <div>
           <strong>ENGINEERING REVIEW SUMMARY</strong>
