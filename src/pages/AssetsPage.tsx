@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   X,
+  ArrowDownUp,
 } from "lucide-react";
 import { categories } from "../domain/types";
 import { filterAssets } from "../domain/selectors";
@@ -25,16 +26,19 @@ import { useAssetSelection } from "../state/useAssetSelection";
 import { StatusBadge } from "../components/StatusBadge";
 import { PageHeading } from "../components/PageHeading";
 import { SimulationBadge } from "../components/DemoControls";
-const pageSize = 8;
+import { inventorySort, keyReading, sortInventory } from "../lib/assetPresentation";
+import { time } from "../lib/format";
+const pageSize = 25;
 export function AssetsPage() {
   const { snapshot, evaluated, total } = useDemoData();
   const { openAsset } = useAssetSelection();
   const [params, setParams] = useSearchParams();
   const { query, category, condition, requestedPage } =
     parseAssetParams(params);
+  const sort = inventorySort(params.get("sort"));
   const filtered = useMemo(
-    () => orderAssets(filterAssets(evaluated, query, category, condition)),
-    [evaluated, query, category, condition],
+    () => sortInventory(filterAssets(evaluated, query, category, condition), sort),
+    [evaluated, query, category, condition, sort],
   );
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = clampPage(requestedPage, filtered.length, pageSize);
@@ -42,7 +46,9 @@ export function AssetsPage() {
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
-  const canonical = normalizeAssetParams(params, currentPage).toString();
+  const normalized = normalizeAssetParams(params, currentPage);
+  if (sort === "priority") normalized.delete("sort"); else normalized.set("sort", sort);
+  const canonical = normalized.toString();
   useEffect(() => {
     if (params.toString() !== canonical)
       setParams(canonical, { replace: true });
@@ -71,7 +77,7 @@ export function AssetsPage() {
             <h2>
               Asset inventory <span className="inventory-count">{total}</span>
             </h2>
-            <p>Your equipment register, connected to its condition.</p>
+            <p>Search equipment and inspect the evidence behind its condition.</p>
           </div>
           <span className="read-only-label">
             <ShieldCheck size={14} />
@@ -113,7 +119,7 @@ export function AssetsPage() {
               <option value="">All systems</option>
               {categories.map((c) => (
                 <option key={c} value={categoryMetadata[c].slug}>
-                  {categoryMetadata[c].label}
+                  {categoryMetadata[c].label} ({evaluated.filter(asset => asset.category === c).length})
                 </option>
               ))}
             </select>
@@ -128,11 +134,12 @@ export function AssetsPage() {
             >
               <option value="">All conditions</option>
               {conditions.map((c) => (
-                <option key={c}>{c}</option>
+                <option key={c} value={c}>{c} ({evaluated.filter(asset => asset.condition === c).length})</option>
               ))}
             </select>
             <ChevronDown size={13} />
           </div>
+          <div className="filter-select"><ArrowDownUp size={15}/><select aria-label="Sort assets" value={sort} onChange={event => changeFilters({sort:event.target.value === "priority" ? "" : event.target.value})}><option value="priority">Engineering priority</option><option value="id-asc">Asset ID · A–Z</option><option value="id-desc">Asset ID · Z–A</option><option value="name-asc">Equipment name · A–Z</option><option value="name-desc">Equipment name · Z–A</option></select><ChevronDown size={13}/></div>
           {(query || category || condition) && (
             <button className="reset-filters" onClick={clearFilters}>
               Reset filters
@@ -146,7 +153,7 @@ export function AssetsPage() {
             {filtered.length} matching{" "}
             {filtered.length === 1 ? "asset" : "assets"}
           </strong>
-          <span>of {total} total assets · ordered by engineering priority</span>
+          <span>of {total} total assets · {pageSize} per page · {sort === "priority" ? "engineering priority" : "custom sort"}</span>
         </div>
         {(query || category || condition) && (
           <div className="filter-chips" aria-label="Active filters">
@@ -183,10 +190,11 @@ export function AssetsPage() {
           <table>
             <thead>
               <tr>
-                <th scope="col">ASSET / EQUIPMENT</th>
+                <th scope="col" aria-sort={sort === "id-asc" ? "ascending" : sort === "id-desc" ? "descending" : "none"}><button className="sort-button" onClick={() => changeFilters({sort: sort === "id-asc" ? "id-desc" : "id-asc"})}>Asset / equipment <ArrowDownUp size={13}/></button></th>
                 <th scope="col">SYSTEM</th>
                 <th scope="col">LOCATION</th>
                 <th scope="col">CONDITION</th>
+                <th scope="col">KEY READING / LAST REPORTED</th>
                 <th scope="col">OPERATING STATE</th>
                 <th scope="col">
                   <span className="sr-only">Details</span>
@@ -199,6 +207,7 @@ export function AssetsPage() {
                 const location = snapshot.locations.find(
                   (l) => l.id === asset.locationId,
                 )!;
+                const reading = keyReading(asset, snapshot);
                 return (
                   <tr key={asset.id} onClick={() => openAsset(asset.id)}>
                     <td>
@@ -237,6 +246,10 @@ export function AssetsPage() {
                     <td>
                       <StatusBadge condition={asset.condition} />
                     </td>
+                    <td><div className={`key-reading ${reading?.current ? "" : "uncertain"}`}>
+                      <strong>{reading ? `${reading.value ?? "—"} ${reading.unit}` : "Unavailable"}<span className="reading-point">{reading?.label ?? "No monitoring point"}</span></strong>
+                      <small>{reading?.validity ?? "No usable measurement"}{reading?.reportedAt ? ` · ${time(reading.reportedAt)} BDT` : ""}</small>
+                    </div></td>
                     <td>
                       <span className="operating">
                         <span

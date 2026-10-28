@@ -283,3 +283,33 @@
   .demo-disclosure > summary { flex-wrap:wrap; padding:16px; }
   .demo-disclosure > summary > span { flex:1; }
 }
+@media screen {
+  .operational-alert { display:flex; align-items:flex-start; gap:16px; width:100%; padding:14px 24px; min-height:76px; border-top:1px solid var(--border); text-align:left; }
+  .operational-alert:hover { background:var(--teal-soft); }
+  .operational-alert > .status-badge { margin-top:2px; flex-shrink:0; min-width:100px; }
+  .operational-alert .alert-copy { display:flex; flex-direction:column; gap:4px; flex:1; min-width:0; }
+  .operational-alert-title { display:flex!important; align-items:baseline; flex-wrap:wrap; gap:6px 12px; }
+  .operational-alert-title > b { color:var(--teal); font-size:13px; font-weight:600; }
+  .operational-alert .alert-copy strong { font-size:14px; font-weight:550; color:var(--text); line-height:1.4; }
+  .operational-alert .alert-description { color:var(--secondary); font-size:13px; line-height:1.4; margin:0; }
+  .operational-alert .alert-location { color:var(--muted); font-size:12px; line-height:1.4; margin:0; }
+  .alert-time-state { display:flex; flex-direction:column; align-items:flex-end; gap:3px; font-size:12px; line-height:1.4; white-space:nowrap; color:var(--muted); margin-left:8px; }
+  .alert-time-state b { font-weight:500; color:var(--secondary); }
+  .operational-alert > svg:last-child { color:var(--teal); align-self:center; flex-shrink:0; }
+  .confirmation-note { color:var(--red); font-size:12px; }
+  .alert-page-note { margin:0; padding:12px 24px; border-radius:0; background:var(--unknown-bg); color:var(--slate); font-size:13px; line-height:1.5; }
+  .alert-page-note p { font-size:13px; color:var(--slate); }
+  .full-alerts { overflow:hidden; }
+  .history-row { min-height:76px; padding:16px 24px; gap:16px; }
+  .history-row strong { font-size:14px; color:var(--text); }
+  .history-row small,.history-row > span > span { font-size:12px; color:var(--muted); line-height:1.5; }
+  .key-reading .reading-point { margin-left:8px; font-size:12px; color:var(--muted); font-weight:400; }
+  .inventory tbody td { padding-top:6px; padding-bottom:6px; }
+}
+@media screen and (max-width:760px) {
+  .operational-alert { padding:16px; flex-wrap:wrap; gap:10px; }
+  .operational-alert .alert-copy { flex-basis:100%; order:3; }
+  .alert-time-state { margin-left:auto; gap:2px; }
+  .operational-alert > svg:last-child { align-self:flex-start; margin-top:6px; }
+  .alert-page-note { padding:12px 16px; }
+}

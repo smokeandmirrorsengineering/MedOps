@@ -65,9 +65,9 @@ export function AssetDrawer({
     function handleKey(event: KeyboardEvent) {
       if (event.key === "Escape") closeAction.current();
       if (event.key === "Tab") {
-        const controls = panel.current?.querySelectorAll<HTMLElement>(
-          'button, a[href], input, select, [tabindex="0"]',
-        );
+        const controls = [...(panel.current?.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), a[href], input, select, summary, [tabindex="0"]',
+        ) ?? [])].filter(element => element.getClientRects().length > 0);
         if (!controls?.length) return;
         const first = controls[0],
           last = controls[controls.length - 1];
@@ -160,21 +160,18 @@ export function AssetDrawer({
             <p>Evaluated at {time(snapshot.now)} BDT · Fictional demo rules</p>
           </section>
           {isConnectionAsset(asset.id) && (
-            <section className="detail-section drawer-demo-actions">
-              <h3>Simulated evidence controls</h3>
+            <details className="detail-section drawer-demo-actions">
+              <summary>Simulated evidence controls</summary>
               <p className="section-note">
                 Demo evidence only. Clearing an alarm and restoring monitoring
                 are independent actions; neither certifies physical equipment
                 safety.
               </p>
               <ScenarioActions assetId={asset.id} />
-            </section>
+            </details>
           )}
-          <section className="detail-section">
-            <h3>
-              <MapPin size={16} />
-              Equipment & location
-            </h3>
+          <details className="detail-section">
+            <summary>Equipment & location</summary>
             <dl className="detail-grid">
               <div>
                 <dt>Building</dt>
@@ -201,7 +198,7 @@ export function AssetDrawer({
                 <dd>{asset.model}</dd>
               </div>
             </dl>
-          </section>
+          </details>
           <section className="detail-section">
             <h3>
               <Activity size={16} />
@@ -255,11 +252,8 @@ export function AssetDrawer({
                 })}
             </div>
           </section>
-          <section className="detail-section">
-            <h3>
-              <Radio size={16} />
-              Monitoring information
-            </h3>
+          <details className="detail-section">
+            <summary>Monitoring information</summary>
             <dl className="detail-grid">
               <div>
                 <dt>Data method</dt>
@@ -286,12 +280,9 @@ export function AssetDrawer({
                 <dd>{asset.monitoring.expectedIntervalMinutes} minutes</dd>
               </div>
             </dl>
-          </section>
-          <section className="detail-section">
-            <h3>
-              <Wrench size={16} />
-              Maintenance
-            </h3>
+          </details>
+          <details className="detail-section">
+            <summary>Maintenance</summary>
             {maintenance.map((record) => (
               <div className="maintenance-record" key={record.id}>
                 <div>
@@ -310,12 +301,9 @@ export function AssetDrawer({
                 <small>{record.technician}</small>
               </div>
             ))}
-          </section>
-          <section className="detail-section">
-            <h3>
-              <FileText size={16} />
-              Engineering documents
-            </h3>
+          </details>
+          <details className="detail-section">
+            <summary>Engineering documents</summary>
             <p className="section-note">
               Sample references only. Files will be added in a later milestone.
             </p>
@@ -333,7 +321,7 @@ export function AssetDrawer({
                   <span className="placeholder-label">Placeholder</span>
                 </div>
               ))}
-          </section>
+          </details>
           <section className="detail-section">
             <h3>
               <Clock3 size={16} />
