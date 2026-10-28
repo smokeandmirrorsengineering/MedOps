@@ -1,4 +1,55 @@
-# Verification — MedOps v0.2
+# Verification — Evidanor v0.3
+
+Executed **29 October 2026 (Asia/Dhaka)** on `feature/v0.3-premium-ui`, branched from completed v0.2 report-improvement commit `1091b7f` with a clean working tree.
+
+## v0.3 preservation and checkpoints
+
+- Local checkpoints: `d4ccaaa` (design foundation/shared shell), `33a78d6` (operational dashboard), `68a8e4d` (inventory/alerts/drawer), `2f0d297` (review/report presentation). Final QA/documentation follows on the same local branch.
+- Existing v0.2 report improvements remain in branch history. Repository/project directory, routes, hospital name and equipment identities are unchanged.
+- Diff against `1091b7f` for `src/data`, `src/domain`, `src/simulation`, `DemoDataProvider`, review model/evidence/types/template/persistence is empty. No stored record migration or rewrite was performed.
+- Package version is 0.3.0. No dependency or component framework was added. No push, merge or deployment was performed.
+
+## Automated checks executed
+
+- **`npm test`: 70 passed, 0 failed.** All 67 v0.2 domain/navigation/simulation/review/report tests remain intact. Three new tests verify that inventory readings belong to existing equipment points, prefer relevant abnormal evidence, preserve uncertainty/staleness/unavailability, and sort deterministically without mutation.
+- **`npm run typecheck`: passed.**
+- **`npm run build`: passed.** Static bundle is produced in `dist/`.
+- **`git diff --check`: passed.** Ordinary Windows line-ending notices do not indicate whitespace errors.
+- Calculated contrast for selected foreground/background token pairs: primary text 16.53:1, secondary text 7.67:1, muted text 5.49:1, white/action teal 5.97:1, Normal 5.81:1, Attention 7.24:1, Critical 6.48:1, Unknown 6.68:1. This is a palette check, not a comprehensive WCAG certification.
+
+## Browser checks executed
+
+Used the existing Codex in-app browser and the actual UI at `http://127.0.0.1:5173/`:
+
+- Engineering Overview showed the unchanged 50-asset baseline: 43 Normal, 5 Attention, 1 Critical, 1 Unknown. Its seven abnormal-equipment queue entries were unique; affected-system counts came from the same register. No uptime, trend or reliability metric was introduced.
+- Collapsed Demo Controls expanded and activated AHU-OT-01's fault. Dashboard showed 42 Normal / 2 Critical, the queue showed 450 Pa and the scenario survived reload. The Critical condition link opened the correct inventory filter.
+- The AHU drawer showed Critical/450 Pa. Connection loss through its disclosure controls preserved Critical as last-confirmed/currently-unverified and displayed unavailable last-known readings. Alerts displayed the active fault separately from monitoring-unavailable Information, with active/resolved/history sections retained.
+- Escape closed the drawer and restored focus to AHU-OT-01. A separate focus-trap check on MG-O2-01 wrapped Shift+Tab from Close to the final visible disclosure summary, Tab back to Close, and Escape back to the originating queue button. Closed disclosure content did not trap focus.
+- Reset Demo restored the equipment baseline. The full historical detailed report text for `REV-af633d09-74c7-4305-8311-9fe0cbbb15cb` matched exactly before/after equipment changes; its frozen 450 Pa Critical evidence and seven exceptions remained. Existing draft and submission history survived.
+- Inventory returned two distinct 25-row pages with no duplicate IDs across pages. ID sorting, search, category+condition filtering and canonical query parameters worked. Searching AHU-OT-01 returned one row; its drawer and selected asset recovered after reload. HVAC + Attention returned AHU-OT-02 and CHL-01.
+- Observed normal alert row height approximately **80 px** with 12 px location captions. Longer descriptions may expand naturally. Table rows are compact, with extra height permitted for multi-line equipment/evidence context.
+- Completed a new clearly synthetic nine-item review `REV-90046126-fcd5-4647-a12a-1662d2b5e966`: no preselected response; N/A owner rejected; first saved answer survived reload; all nine saves succeeded. Human-only inspection/panel/document items recorded Unable to Verify, with meaningful follow-up. Carried-issue acknowledgements were explicit.
+- The submission confirmation explained the read-only result and six unresolved exceptions. Confirm submission opened the frozen report with nine responses/six open exceptions; it survived reload. Open Issues correctly showed 13 total (seven prior plus six new QA exceptions). These QA records belong to the in-app browser profile; Chrome's records were not edited.
+- Both report view switches and the enabled Print Summary/Print Detailed Record controls were present. Current branding was Evidanor; frozen historical wording and the exact required MedOps operational-authorization statement remained intact.
+- **40 responsive checks:** Dashboard, Assets, Alerts, Reviews home, Start, Open Issues, Runner and Report at **1440, 1280, 1024, 768 and 390 px**. No page-level horizontal overflow. Tables scroll inside their panel. Representative desktop and mobile views were visually inspected; the mobile header was refined afterward to show an accessible Synthetic data indicator without crowding the hospital context.
+- Mobile menu opened, trapped navigation focus and closed with Escape, returning focus to Open navigation. Keyboard-focus outlines, readable form labels and restrained/reduced-motion styling are provided.
+- Final clean development browser log contained no warnings/errors. Synthetic indication and timestamps remained visible.
+
+## Production smoke check
+
+Served the production bundle locally on port 4173. Confirmed Evidanor title, 43 Normal baseline, working inventory search and UPS-02's genuine 71% battery-health reading. The pre-existing v0.2 production-origin draft (`Synthetic production smoke check`) remained recoverable without a storage-format change. Production console warning/error log was empty. The temporary preview server was stopped afterward; the development server remains available at **http://127.0.0.1:5173/dashboard**.
+
+## Limits and handover state
+
+- Actual browser print-preview pagination was **not independently verified in v0.3**. This milestone preserves both normal browser print actions and the existing compact print CSS; no one-page or detailed-record page count is claimed. No new PDF-generation dependency or external service was used, and no physical print job was sent.
+- Accessibility was checked through palette contrast, labels, focus behavior and responsive UI. No formal assistive-technology/device lab audit or WCAG certification was performed.
+- No authentication, backend, real equipment integration, new hospital criteria or clinical authorization is introduced. Evidanor is a provisional brand, not a trademark-cleared corporate identity.
+- Baseline simulation is restored. Existing records and the explicitly synthetic v0.3 QA submission remain available in the in-app browser. Browser profiles/origins remain separate.
+- Ignored screenshots: `.qa/evidanor-v03-dashboard.png`, `evidanor-v03-assets.png`, `evidanor-v03-alerts.png`, `evidanor-v03-mobile.png`. Temporary viewport overrides were reset.
+
+---
+
+# Previous milestone verification — MedOps v0.2
 
 Executed 28 October 2026 against `feature/v0.2-engineering-reviews` in `C:\Projects\MedOps`.
 

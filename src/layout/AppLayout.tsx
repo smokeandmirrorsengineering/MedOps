@@ -67,7 +67,7 @@ export function AppLayout() {
       if (event.key === "Escape") setMobileNav(false);
       if (event.key === "Tab") {
         const controls = navigationPanel.current?.querySelectorAll<HTMLElement>(
-          "a, button:not(:disabled)",
+          "a, button:not(:disabled), summary",
         );
         if (!controls?.length) return;
         const first = controls[0],
@@ -201,15 +201,21 @@ export function AppLayout() {
             <div>
               <strong>MedOps Demo Hospital</strong>
               <span>
-                Dhaka, Bangladesh <span className="separator">/</span> 250 beds
+                Dhaka, Bangladesh{" "}
+                <span className="hospital-capacity">
+                  <span className="separator">/</span> 250 beds
+                </span>
               </span>
             </div>
           </div>
           <div className="topbar-right">
             <details className="synthetic-indicator">
-              <summary>
+              <summary aria-label="Synthetic Demonstration Data explanation">
                 <FlaskConical size={16} />
-                <span>Synthetic Demonstration Data</span>
+                <span className="synthetic-desktop">
+                  Synthetic Demonstration Data
+                </span>
+                <span className="synthetic-mobile">Synthetic data</span>
                 <Info size={14} />
               </summary>
               <p>
@@ -232,7 +238,7 @@ export function AppLayout() {
           </div>
         </header>
 
-        <main id="main-content">
+        <main id="main-content" tabIndex={-1}>
           {assetId && !selected && (
             <div className="invalid-asset-notice" role="alert">
               <span>

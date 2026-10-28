@@ -1,8 +1,21 @@
-# MedOps v0.2 — Engineering Reviews
+# Evidanor v0.3 — Evidence Navy
 
-**Prevent failures before they interrupt care.**
+**Infrastructure intelligence, grounded in evidence.**
 
 A local React + TypeScript application for MedOps Demo Hospital, a fictional 250-bed facility in Dhaka. Dashboard, Assets and Alerts share one immutable seed dataset plus an interactive simulation overlay. Engineering Reviews adds human inspection records, captured evidence, follow-up exceptions and printable historical reports. All equipment, readings, limits, alerts, manufacturers and service records are synthetic. They are demonstration material, not hospital operating criteria. Simulation actions never command real equipment.
+
+Evidanor is the provisional product name; no trademark clearance is claimed. The project directory, repository, fictional hospital name, asset IDs, internal identifiers and persistence keys remain unchanged. Historical template wording and the required operational-authorization statement can still mention MedOps; they are intentionally preserved.
+
+## What's new in v0.3
+
+- **Engineering Overview:** a compact condition strip, one prioritized Needs Attention queue with one entry per abnormal asset, Affected Systems and Next Steps drawn from existing data. Unknown explicitly means uncertain evidence. No invented trends, uptime or reliability scores.
+- **Shared design:** Evidence Navy tokens, original SVG mark/favicon, readable typography, clear keyboard focus, icon-and-text statuses and a quiet Planned navigation group. The shared header's Synthetic Demonstration Data indicator opens a concise explanation.
+- **Assets:** 25 rows per page, sticky table header, category/condition counts, ID/name sorting and a key reading with units, quality and report time. A value with unavailable, uncertain or stale evidence never appears current.
+- **Alerts and details:** compact operational rows retain active/resolved/history separation. The existing equipment drawer emphasizes condition and readings; secondary location, monitoring, maintenance, documents and scenario actions expand on demand.
+- **Engineering Reviews:** clearer progress, required-field guidance, readable System Evidence and Engineer Judgment sections, saved-draft feedback and a submission confirmation explaining read-only records and open exceptions.
+- **Reports:** Evidanor presentation retains both Print Summary and Print Detailed Record, with the existing compact print layouts and complete frozen historical evidence.
+
+No telemetry evaluation, simulation behavior, review schema, validation rules, immutable snapshots or storage formats changed in this milestone. The current working branch is `feature/v0.3-premium-ui`; nothing is automatically pushed, merged or deployed.
 
 ## Start locally
 
@@ -29,7 +42,7 @@ The project was built using Node 24.22.1. Exact installed dependency versions ar
 | Address          | Purpose                                                                                                      |
 | ---------------- | ------------------------------------------------------------------------------------------------------------ |
 | `/`              | Redirects to Dashboard                                                                                       |
-| `/dashboard`     | KPI cards, equipment status, system health, five priority alerts and a compact engineering follow-up preview |
+| `/dashboard`     | Engineering Overview: condition strip, prioritized equipment queue, affected systems, next steps and collapsible Demo Controls |
 | `/assets`        | Full 50-asset inventory with search, filters, pagination and equipment details                               |
 | `/alerts`        | Active seed/scenario alerts, resolved simulated alerts and recorded simulation history                       |
 | `/reviews` | One available OT template, saved drafts, submitted history and Open Issues |
@@ -39,16 +52,16 @@ The project was built using Node 24.22.1. Exact installed dependency versions ar
 | `/reviews/issues` | Open exceptions from submitted reviews; search and originating-report links |
 | Any unknown path | Not Found page with a return link to Dashboard                                                               |
 
-The sidebar highlights the current page. Browser Back/Forward and direct route refreshes work. Switching primary pages scrolls to the top. Engineering Reviews replaces Prechecks; other future modules remain explicitly marked **Coming soon**.
+The sidebar highlights the current page. Browser Back/Forward and direct route refreshes work. Switching primary pages scrolls to the top. Unimplemented modules sit in a collapsed **Planned modules** group with disabled controls.
 
 ## Run the Engineering Review demonstration
 
-1. On Dashboard, use **Reset Demo** to restore 43 Normal / 5 Attention / 1 Critical / 1 Unknown. Activate **Simulate Fault** for AHU-OT-01.
+1. On Dashboard, expand **Demo Controls** below the operational overview. Use **Reset Demo** to restore 43 Normal / 5 Attention / 1 Critical / 1 Unknown. Activate **Simulate Fault** for AHU-OT-01.
 2. Open **Engineering Reviews → Start New Review**. The only template is **Operating Theatre — Engineering Review**, scoped to the shared fictional OT plant room. Enter a synthetic technician name and role, then start the draft.
 3. On the air-handling item, inspect AHU-OT-01's Critical condition and 450 Pa reading. Equipment-ID buttons open the existing drawer. Choose **Pass**, a verification method, observations, responsible role and follow-up. Saving requires a reconciliation note; it retains an open discrepancy and leaves the equipment alarm unchanged.
 4. Complete all nine items. For the human-only gas-panel or backup-power-documentation item, choose **Unable to Verify** and explain that the fictional panel/logbook was inaccessible. Add a responsible role and suggested action. Do not claim that placeholder documents prove a test or that a new UPS fault exists.
 5. On monitoring gaps, address each affected in-scope asset separately. On previous issues, explicitly acknowledge every listed issue; acknowledgement does not close it. No answer or method starts preselected.
-6. Use **Save response** or **Save & next item**. Saved draft responses survive refresh. Unsaved field edits are discarded when leaving an item. Add summary observations and **Submit Review**. Open exceptions are allowed; missing required information is explained beside the form.
+6. Use **Save response** or **Save & next item**. Saved draft responses survive refresh. Unsaved field edits are discarded when leaving an item. Add summary observations, choose **Submit Review**, review the read-only/open-exception explanation and **Confirm submission**. Open exceptions are allowed; missing required information is explained beside the form.
 7. Open the submitted report. **Print Summary** is the primary action; **Print Detailed Record** includes all historical evidence. Both use normal browser printing or Save as PDF. Choose A4 portrait, 100% scale and disable browser headers/footers. The report distinguishes human observations from synthetic evidence and actual record timestamps from simulated monitoring time.
 8. Clear the AHU fault or Reset Demo, then reopen the submitted report from review history. Its Critical evidence and wording remain unchanged. **Open Issues** still lists the outstanding exceptions.
 
@@ -80,8 +93,8 @@ Review records use a separate versioned localStorage key, **`medops.engineering-
 
 Records belong to the browser profile and origin/port. They are not uploaded, synchronized, authenticated, encrypted archives or tamper-proof records. Clearing browser site data can remove them. The automated walkthrough's synthetic records are in the Codex in-app browser; they do not automatically appear in Chrome.
 
-- Dashboard condition cards open Assets with the chosen condition. Total Assets opens the complete inventory. System rows open a system-filtered inventory.
-- Assets orders equipment by Critical, Unknown, Attention, Normal, then asset ID. Search and filters apply before pagination.
+- Dashboard condition summaries open Assets with the chosen condition. Total fleet opens the complete inventory. Affected Systems rows open a system-filtered inventory.
+- Assets defaults to Critical, Unknown, Attention, Normal, then asset ID. Sort by asset ID or equipment name using the sort selector; the ID header also toggles ascending/descending. Search and filters apply before the 25-row pagination.
 - Filter summaries show both matching and total assets. Remove individual filter chips or use **Reset filters**.
 - Alerts distinguish equipment conditions, inspections, maintenance requirements and unavailable monitoring. Active alarms and historical logs have separate sections; no acknowledgement or notification workflow is implemented.
 - Click equipment or an alert to open the same shared drawer. Close using Escape, the close button, or the shaded backdrop.
@@ -89,7 +102,7 @@ Records belong to the browser profile and origin/port. They are not uploaded, sy
 
 ## Try the interactive demo
 
-Use **Demo Controls** on the Dashboard:
+Expand **Demo Controls** below the main operational view on the Dashboard:
 
 1. Start from the original **43 Normal / 5 Attention / 1 Critical / 1 Unknown** distribution.
 2. Click **Simulate Fault** for AHU-OT-01. Its fictional filter pressure becomes 450 Pa and its evaluated condition becomes Critical: **42/5/2/1**.
@@ -100,7 +113,7 @@ Use **Demo Controls** on the Dashboard:
 
 For the fault-plus-monitoring-loss edge case, activate the AHU fault first, then choose **AHU-OT-01** in Monitoring source and simulate connection loss. The AHU stays **Critical — last confirmed, currently unverified**. Numeric readings remain visible with **Unavailable** quality and explicit **last-known** labels. Restoring communication leaves the fault active. Clearing the fault while disconnected yields Unknown until communication is restored. Establishing a new fault from unavailable readings is disabled.
 
-The two eligible equipment drawers also contain the same scenario actions, allowing you to watch details update without closing the drawer. If restoring an asset removes it from the current filter, the drawer remains open and closing it returns keyboard focus to the page heading.
+The two eligible equipment drawers contain the same scenario actions under **Simulated evidence controls**, allowing you to watch details update without closing the drawer. If restoring an asset removes it from the current filter, the drawer remains open and closing it returns keyboard focus to the page heading.
 
 These controls change synthetic evidence only. Clearing a simulated alarm does not certify equipment safety; restored telemetry does not prove a physical fault is resolved.
 
@@ -131,6 +144,7 @@ http://127.0.0.1:5173/alerts?asset=FRZ-LAB-03
 | `system`    | `hvac`, `gas`, `cold`, `power`, or `lab`                  |
 | `condition` | `Normal`, `Attention`, `Critical`, or `Unknown`           |
 | `page`      | Page number; page one is normally omitted                 |
+| `sort`      | `id-asc`, `id-desc`, `name-asc`, `name-desc`; omitted means engineering priority |
 | `asset`     | Equipment ID to display in the shared drawer, on any page |
 
 Search typing replaces the current history entry, avoiding one Back step per keystroke. Explicit filters and page selections create history entries. Changing filters resets to page one. Invalid filters are ignored and removed; invalid/out-of-range pages are corrected safely. Unknown asset IDs show a dismissible message.
@@ -182,6 +196,9 @@ Suggested demonstration records:
 | `src/reviews/report.ts`, `ReviewSummary.tsx` | Frozen-record summary projection and management report |
 | `src/reviews/ReportEvidence.tsx`, `report.css` | Complete compact evidence printing and two report formats |
 | `src/reviews/followUp.ts` | Shared placeholder detection and missing-information labels |
+| `src/enterprise.css` | Central Evidence Navy tokens and responsive screen-only presentation |
+| `src/components/BrandMark.tsx`, `PageHeader.tsx` | Provisional brand mark and common page-heading presentation |
+| `src/lib/assetPresentation.ts` | Existing-point key readings and immutable inventory sorting |
 | `src/styles.css`                  | Design tokens, common components and responsive layout                        |
 
 The simulated clock is fixed at **27 October 2026, 09:30 BDT (UTC+6)**. Readings and generated transitions use this one simulation clock, never the actual date you open the app. Monotonically increasing sequence numbers distinguish events triggered at the same timestamp; Reset restarts the counter. Review creation, response saves, evidence captures and submission use the actual record clock stored as ISO UTC. Both clocks display explicitly in `Asia/Dhaka`, labeled BDT (UTC+6).
@@ -195,7 +212,7 @@ npm run build
 npm run preview
 ```
 
-`npm test` runs **67 lightweight Node tests**: 39 existing domain/navigation/simulation tests, 22 review tests and six focused reporting tests. `typecheck` checks TypeScript. `build` checks TypeScript again and produces a static production bundle in **`dist/`**. `preview` serves that bundle locally (normally http://127.0.0.1:4173/); use Ctrl+C to stop it.
+`npm test` runs **70 lightweight Node tests**: all 67 v0.2 tests plus three inventory-presentation tests for genuine point selection, evidence validity and immutable sorting. `typecheck` checks TypeScript. `build` checks TypeScript again and produces a static production bundle in **`dist/`**. `preview` serves that bundle locally (normally http://127.0.0.1:4173/); use Ctrl+C to stop it.
 
 The Vite base path remains `/`. For eventual Cloudflare Pages hosting, use build command `npm run build` and output directory `dist`. No top-level `404.html` or `_redirects` file is added, preserving [Cloudflare Pages' standard SPA fallback](https://developers.cloudflare.com/pages/configuration/serving-pages/#single-page-application-spa-rendering). Cloudflare deployment has not been performed; direct routes have been tested locally.
 

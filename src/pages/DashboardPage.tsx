@@ -135,8 +135,13 @@ export function DashboardPage() {
                       </span>
                     )}
                     <span className="queue-location">
-                      {categoryMetadata[asset.category].label} ·{" "}
-                      {location.department} · {location.room}
+                      {[
+                        ...new Set([
+                          categoryMetadata[asset.category].label,
+                          location.department,
+                          location.room,
+                        ]),
+                      ].join(" · ")}
                     </span>
                     <SimulationBadge assetId={asset.id} />
                   </span>

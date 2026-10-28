@@ -306,7 +306,7 @@ export function AssetsPage() {
                         <strong>
                           {reading
                             ? `${reading.value ?? "—"} ${reading.unit}`
-                            : "Unavailable"}
+                            : "Unavailable"}{" "}
                           <span className="reading-point">
                             {reading?.label ?? "No monitoring point"}
                           </span>

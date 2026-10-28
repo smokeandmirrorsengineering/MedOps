@@ -2095,3 +2095,76 @@
     font-size: 12px;
   }
 }
+@media screen {
+  .brand small,
+  .workspace-label,
+  .planned-nav small,
+  .profile small {
+    font-size: 12px;
+  }
+  .brand {
+    letter-spacing: -0.5px;
+  }
+  .brand small {
+    letter-spacing: 0.5px;
+  }
+  .app-shell .simulation-tag,
+  .app-shell .alert-copy .confirmation-note {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .app-shell .operational-alert {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .app-shell .operational-alert .alert-copy {
+    gap: 2px;
+  }
+  .asset-link {
+    min-height: 20px;
+    line-height: 1.4;
+  }
+}
+@media screen and (max-width: 760px) {
+  .hospital > div > span,
+  .synthetic-indicator summary span {
+    font-size: 12px;
+  }
+}
+@media screen {
+  .synthetic-mobile {
+    display: none;
+  }
+  .app-shell .operational-alert {
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+}
+@media screen and (max-width: 440px) {
+  .synthetic-indicator .synthetic-desktop,
+  .hospital-capacity {
+    display: none;
+  }
+  .synthetic-indicator .synthetic-mobile {
+    display: inline;
+  }
+  .synthetic-indicator summary {
+    min-height: 40px;
+  }
+}
+@media screen {
+  .sidebar nav {
+    padding: 0;
+  }
+  .workspace-label {
+    margin: 0;
+  }
+  .nav-item > svg {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+  }
+  .nav-item.active::before {
+    display: none;
+  }
+}

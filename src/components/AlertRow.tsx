@@ -43,7 +43,7 @@ export function AlertRow({
     getAssetSimulation(event.assetId).lastConfirmedCritical;
   return (
     <button
-      className={`alert-row operational-alert ${expanded ? "expanded-alert" : ""}`}
+      className={`alert-row operational-alert ${expanded ? "full-alert-row" : ""}`}
       onClick={() => openAsset(event.assetId)}
       aria-label={`${event.title} · ${event.assetId}`}
     >

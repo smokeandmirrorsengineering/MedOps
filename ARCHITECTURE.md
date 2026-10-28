@@ -1,4 +1,18 @@
-# MedOps architecture — v0.2
+# Evidanor architecture — v0.3
+
+## Evidence Navy presentation layer
+
+v0.3 preserves the v0.2 data/evaluation, simulation and review models. `enterprise.css`, imported after the existing styles, centralizes Evidence Navy colors, semantic status tokens, spacing/radii and screen typography. Presentation overrides are scoped to `@media screen`; the existing A4 summary/detailed print layout remains in `reviews/report.css`. Reduced-motion preferences disable decorative transitions. Existing internal names and localStorage keys deliberately retain `medops` so a cosmetic rebrand cannot orphan historical records.
+
+`BrandMark` is an original SVG evidence-line monogram; the favicon uses the same geometry. It is a provisional brand. `PageHeader` is shared by equipment pages and review pages. `PageHeading` supplies simulated snapshot context for current equipment pages; reviews use actual record dates, and historical reports never gain a current-equipment timestamp. `StatusBadge` combines a Lucide icon, text and a semantic color, rather than relying on color alone.
+
+The dashboard reads the existing contexts: one prioritized row per abnormal evaluated asset, category counts from the same equipment register, open review exceptions from submitted sessions, and resumable drafts from the existing review store. It does not duplicate alerts across multiple dashboard cards or calculate new performance metrics. Demo Controls remain the same simulation component inside a native collapsed details panel.
+
+`assetPresentation.ts` adds read-only display helpers. Inventory sorting copies arrays, defaults to the existing engineering priority and uses stable identity ties. The optional `sort` query parameter is validated while existing filter/drawer parameters remain intact. Key readings select an existing point, preferentially one named by an evaluated reason, then use the existing latest-reading helper. Source availability, quality and age determine display wording; this never changes condition evaluation or claims a last-known/stale value is current. Inventory uses 25-row pages and an internally scrolling sticky-header table.
+
+The shared drawer retains its original URL selection, focus restoration, Escape and focus trap. Secondary details use native disclosure controls; the focus trap includes their summaries and ignores hidden/disabled controls. Alerts retain current, resolved and historical sections, with explicit Information/monitoring-unavailable text distinct from confirmed equipment faults.
+
+Review presentation adds saved-response progress and field guidance. A short inline submission confirmation communicates read-only evidence and open exceptions, then invokes the same existing summary/save/submit functions. It adds no verification rule, automatic answer or new review state. Reports replace current branding only; saved template text, observations and the exact MedOps authorization statement remain unchanged. No new dependencies, services or component framework were introduced.
 
 ## The equipment register and its evidence
 
