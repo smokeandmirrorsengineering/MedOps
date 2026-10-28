@@ -187,7 +187,10 @@ export function validReview(v: unknown): v is ReviewSession {
       !item ||
       !response(value) ||
       value.itemId !== key ||
-      responseErrors(value, item).length
+      // Saved records may contain legacy N/A follow-up. Restore them verbatim;
+      // apply the stricter rule when a draft is saved or submitted now. Rejecting
+      // an old draft here would otherwise discard the whole stored collection.
+      responseErrors(value, item, { historical: true }).length
     )
       return false;
     if (

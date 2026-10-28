@@ -4,6 +4,7 @@ import {
   isAbnormal,
   isGap,
 } from "./evidence";
+import { hasFollowUpText } from "./followUp";
 import type {
   EvidenceAsset,
   EvidenceSnapshot,
@@ -38,6 +39,7 @@ export function verificationErrors(
   item: TemplateItem,
   assets: EvidenceAsset[],
   prefix = "",
+  historical = false,
 ): string[] {
   const errors: string[] = [];
   if (!value.choice || !item.allowedResponses.includes(value.choice as never))
@@ -75,21 +77,29 @@ export function verificationErrors(
       "Pass conflicts with Critical/Unknown evidence: an explicit reconciliation note is required.",
     );
   if (
+    !historical &&
     responseIssues(value, assets).length &&
-    (!hasText(value.responsible) || !hasText(value.followUp))
+    (!hasFollowUpText(value.responsible) || !hasFollowUpText(value.followUp))
   )
     errors.push(
-      "Open exceptions require a responsible role/person and suggested follow-up.",
+      "Open exceptions require a responsible role/person and suggested follow-up; N/A and other placeholders are not sufficient.",
     );
   return errors.map((error) => prefix + error);
 }
 export function responseErrors(
   response: ItemResponse,
   item: TemplateItem,
+  options: { historical?: boolean } = {},
 ): string[] {
   const assets =
     item.kind === "gaps" ? [] : applicableAssets(item, response.evidence);
-  const errors = verificationErrors(response, item, assets);
+  const errors = verificationErrors(
+    response,
+    item,
+    assets,
+    "",
+    options.historical,
+  );
   if (
     new Set(response.gaps.map((gap) => gap.assetId)).size !==
     response.gaps.length
@@ -115,7 +125,15 @@ export function responseErrors(
           `${asset.id}: record an individual verification or exception.`,
         );
       else
-        errors.push(...verificationErrors(gap, item, [asset], `${asset.id}: `));
+        errors.push(
+          ...verificationErrors(
+            gap,
+            item,
+            [asset],
+            `${asset.id}: `,
+            options.historical,
+          ),
+        );
     }
   const issues = new Map(
     [
@@ -131,8 +149,9 @@ export function responseErrors(
   if (
     response.changeAcknowledgement &&
     (!hasText(response.changeAcknowledgement.note) ||
-      !hasText(response.responsible) ||
-      !hasText(response.followUp))
+      (!options.historical &&
+        (!hasFollowUpText(response.responsible) ||
+          !hasFollowUpText(response.followUp))))
   )
     errors.push(
       "Continuing with changed evidence requires an explanation, responsible role/person and follow-up.",

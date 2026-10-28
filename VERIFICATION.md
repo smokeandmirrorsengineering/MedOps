@@ -2,6 +2,26 @@
 
 Executed 28 October 2026 against `feature/v0.2-engineering-reviews` in `C:\Projects\MedOps`.
 
+## Report presentation follow-up — 28 October 2026
+
+Focused scope: two immutable-data print formats, compact detailed pagination and follow-up-placeholder validation. Equipment datasets, simulation logic, dashboards and stored review records were not changed.
+
+**Automated results:** `npm test` — **67 passed, 0 failed** (all previous 61 plus six reporting tests). `npm run typecheck` and `npm run build` both passed. `git diff --check` passed.
+
+The new tests exercise a submitted nine-item record with nine human Pass responses and three open discrepancies (AHU-OT-02 in two items and UPS-02). They verify correct counts/findings, immutable source data, explicit missing-owner/action labels, preservation of legacy submitted records and drafts, verbatim "Full pass." notes without an overall verdict, all long finding/note/owner/action text, complete compact detailed evidence rendering, and rejection of N/A placeholders during new saves/submission.
+
+**Actual browser inspection:** opened the user's existing Chrome record `REV-2ebc2bc6-5ef9-4eee-895f-50d6ec7170f0`. The updated UI showed Print Summary and Print Detailed Record, all nine Pass responses, three open discrepancies, unverified typed identity, separate actual/simulated dates, the unchanged "Full pass" note, and Unassigned/Not specified on all three legacy findings. No record was edited or submitted during this inspection.
+
+**Print-preview limitation:** before opening Summary print preview, Windows Computer Use stopped because it could not confidently verify the browser URL for its policy checks. No further browser input was attempted. Therefore the current sample's **Summary page count and Detailed Record page count are not yet verified**; one page and approximately 4–6 pages are design targets, not reported measurements. Browser-generated PDFs were not created by the agent in this follow-up.
+
+The user reported **"2 sheets"** during a manual check, without identifying which format, then asked to proceed without further print-check questions. Final summary spacing was tightened afterward by reducing repeated labels, card spacing and duplicate context while retaining 9 pt core text, every finding, owner/action, technician note and disclaimer. That final revision's page counts remain unmeasured.
+
+Repeatable manual check (for future reference): open the same submitted record; select each print button; choose A4 portrait, 100% scale, normal CSS margins, headers/footers off, and all pages. Confirm Summary includes all three discrepancies, missing-owner/action labels, technician notes and authorization statement. Inspect each Detailed Record page for complete readings/quality/timestamps/alarms/maintenance and no large whitespace or clipped content. For long notes/many findings, confirm continuation onto additional pages instead of truncation.
+
+Implementation changes: removed whole-item `break-inside: avoid` printing and tall two-column evidence cards; added full-width compact historical evidence tables, natural section flow, small-card/row break avoidance, A4 typography and a dedicated summary. No forced page count, scaling transform, fixed page height or content omission is used. Actual pagination remains subject to the manual check above.
+
+The sections below document the preceding v0.2 implementation checks and remain historical evidence of that milestone.
+
 ## Preservation and checkpoints
 
 - Started from clean stable v0.1C commit `60d9e8e`; tagged it `v0.1c-reviewed` before implementation.

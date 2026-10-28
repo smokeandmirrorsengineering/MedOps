@@ -49,7 +49,7 @@ The sidebar highlights the current page. Browser Back/Forward and direct route r
 4. Complete all nine items. For the human-only gas-panel or backup-power-documentation item, choose **Unable to Verify** and explain that the fictional panel/logbook was inaccessible. Add a responsible role and suggested action. Do not claim that placeholder documents prove a test or that a new UPS fault exists.
 5. On monitoring gaps, address each affected in-scope asset separately. On previous issues, explicitly acknowledge every listed issue; acknowledgement does not close it. No answer or method starts preselected.
 6. Use **Save response** or **Save & next item**. Saved draft responses survive refresh. Unsaved field edits are discarded when leaving an item. Add summary observations and **Submit Review**. Open exceptions are allowed; missing required information is explained beside the form.
-7. Open the submitted report and use **Print Report** for normal browser printing or Save as PDF. The report distinguishes human observations from synthetic evidence and actual record timestamps from simulated monitoring time.
+7. Open the submitted report. **Print Summary** is the primary action; **Print Detailed Record** includes all historical evidence. Both use normal browser printing or Save as PDF. Choose A4 portrait, 100% scale and disable browser headers/footers. The report distinguishes human observations from synthetic evidence and actual record timestamps from simulated monitoring time.
 8. Clear the AHU fault or Reset Demo, then reopen the submitted report from review history. Its Critical evidence and wording remain unchanged. **Open Issues** still lists the outstanding exceptions.
 
 The nine items cover air handling, available supply-air readings, physical filter/gauge inspection, gas-alarm indications, UPS indicators, backup-power test documents, monitoring gaps, previous issues and handover observations. Individual **Pass** is a technician assessment; there is no overall Pass/Fail, score or readiness status.
@@ -67,6 +67,14 @@ Physical gauges, gas alarms and backup-power test documentation remain human-onl
 Each response saves a copy of the relevant evidence at that moment. Reopening an answered item compares its copy with current conditions, quality, active alarms and readings using explicit demonstration tolerances. Timestamp changes alone do not trigger warnings. A meaningful change requires **Review Again / Refresh Evidence**, or an explanation for retaining the original evidence. Retention records the discrepancy and follow-up; it never silently replaces the original capture. Submission repeats this check.
 
 Submitted records freeze responses, evidence, template wording and exceptions. They have no edit or closure action. Open Issues shows submitted exceptions only; draft exceptions are previewed within the runner and reconciled when saved answers change.
+
+### Two report formats
+
+The report opens with an **Executive summary** containing Submitted state, reviewed-item and exception counts, the nine-item overview, unresolved findings with ownership/actions, and verbatim technician notes. **Detailed record** shows the full frozen inspection record. The view buttons change only the screen presentation; the two print buttons explicitly select their respective formats. Ordinary browser printing defaults to Summary and returns to that default after a print dialog closes.
+
+The summary is designed for one A4 page with nine items and three short exceptions. Long notes or more exceptions flow onto additional pages without truncation. The detailed print layout uses compact evidence tables and allows natural page breaks between small equipment blocks, retaining every historical reading, quality/validity, timestamp, alarm, maintenance entry and human response. Page count depends on record content and browser print settings; see VERIFICATION for the checks actually executed.
+
+Human Pass responses do not suppress open evidence discrepancies. Text such as "Full pass" remains under **Technician-entered notes**, with a clear explanation that it does not resolve the findings or establish an overall clearance. Existing missing or placeholder ownership/action values appear as **Unassigned** / **Not specified** without rewriting the submitted record. New saves/submissions require meaningful owner/action text for exceptions: `N/A`, `None`, `TBD` and similar placeholders no longer satisfy validation. Existing stored drafts remain recoverable so the engineer can complete those fields.
 
 Review records use a separate versioned localStorage key, **`medops.engineering-reviews.v1`**. **Reset Demo never removes reviews.** Malformed/incompatible saved data is rejected with a recovery notice. Blocked/full storage displays a warning: work can continue in memory, but persistence is not claimed. There is no review-data deletion control in v0.2.
 
@@ -171,6 +179,9 @@ Suggested demonstration records:
 | `src/reviews/ReviewProvider.tsx` | Review state, clock and persistence boundary |
 | `src/pages/Review*.tsx` | Reviews home, start, runner, historical report and Open Issues |
 | `src/reviews/reviews.css` | Review forms, responsive layouts and print rules |
+| `src/reviews/report.ts`, `ReviewSummary.tsx` | Frozen-record summary projection and management report |
+| `src/reviews/ReportEvidence.tsx`, `report.css` | Complete compact evidence printing and two report formats |
+| `src/reviews/followUp.ts` | Shared placeholder detection and missing-information labels |
 | `src/styles.css`                  | Design tokens, common components and responsive layout                        |
 
 The simulated clock is fixed at **27 October 2026, 09:30 BDT (UTC+6)**. Readings and generated transitions use this one simulation clock, never the actual date you open the app. Monotonically increasing sequence numbers distinguish events triggered at the same timestamp; Reset restarts the counter. Review creation, response saves, evidence captures and submission use the actual record clock stored as ISO UTC. Both clocks display explicitly in `Asia/Dhaka`, labeled BDT (UTC+6).
@@ -184,7 +195,7 @@ npm run build
 npm run preview
 ```
 
-`npm test` runs **61 lightweight Node tests**: 39 existing domain/navigation/simulation tests plus 22 review tests. `typecheck` checks TypeScript. `build` checks TypeScript again and produces a static production bundle in **`dist/`**. `preview` serves that bundle locally (normally http://127.0.0.1:4173/); use Ctrl+C to stop it.
+`npm test` runs **67 lightweight Node tests**: 39 existing domain/navigation/simulation tests, 22 review tests and six focused reporting tests. `typecheck` checks TypeScript. `build` checks TypeScript again and produces a static production bundle in **`dist/`**. `preview` serves that bundle locally (normally http://127.0.0.1:4173/); use Ctrl+C to stop it.
 
 The Vite base path remains `/`. For eventual Cloudflare Pages hosting, use build command `npm run build` and output directory `dist`. No top-level `404.html` or `_redirects` file is added, preserving [Cloudflare Pages' standard SPA fallback](https://developers.cloudflare.com/pages/configuration/serving-pages/#single-page-application-spa-rendering). Cloudflare deployment has not been performed; direct routes have been tested locally.
 
