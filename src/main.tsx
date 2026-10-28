@@ -7,6 +7,7 @@ import { ReviewProvider } from "./reviews/ReviewProvider";
 import "./styles.css";
 import "./reviews/reviews.css";
 import "./reviews/report.css";
+import "./enterprise.css";
 
 // Commit URL-driven form updates immediately, including consecutive filter changes.
 ReactDOM.createRoot(document.getElementById("root")!).render(

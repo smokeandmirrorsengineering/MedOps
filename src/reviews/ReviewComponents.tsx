@@ -9,6 +9,7 @@ import { StatusBadge } from "../components/StatusBadge";
 import { useAssetSelection } from "../state/useAssetSelection";
 import { date, time } from "../lib/format";
 import { useReviews } from "./ReviewProvider";
+import { PageHeader } from "../components/PageHeader";
 import type {
   EvidenceSnapshot,
   HumanVerification,
@@ -25,20 +26,7 @@ export function ReviewHeader({
   description: string;
 }) {
   return (
-    <div className="page-heading">
-      <div>
-        <div className="breadcrumb">
-          Workspace <ChevronRight size={12} />
-          <Link to="/reviews">Engineering Reviews</Link>
-        </div>
-        <h1 tabIndex={-1}>
-          {title}
-          <span className="title-dot">.</span>
-        </h1>
-        <p>{description}</p>
-      </div>
-      <ClipboardCheck className="review-heading-icon" size={28} />
-    </div>
+    <PageHeader page={<Link to="/reviews">Engineering Reviews</Link>} title={title} description={description}/>
   );
 }
 export function ReviewNav() {

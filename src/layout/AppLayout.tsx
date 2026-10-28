@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import {
-  Activity,
   Bell,
-  BookOpen,
   Box,
   Building2,
   Check,
@@ -13,13 +11,15 @@ import {
   Map,
   Menu,
   Settings,
-  ShieldCheck,
+  FlaskConical,
+  Info,
   Wrench,
   X,
 } from "lucide-react";
 import { useDemoData } from "../state/DemoDataProvider";
 import { useAssetSelection } from "../state/useAssetSelection";
 import { AssetDrawer } from "../components/AssetDrawer";
+import { BrandMark } from "../components/BrandMark";
 const nav = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { name: "Assets", icon: Box, path: "/assets" },
@@ -54,7 +54,7 @@ export function AppLayout() {
       (location.pathname.startsWith("/reviews")
         ? "Engineering Reviews"
         : "Page not found");
-    document.title = "MedOps | " + title;
+    document.title = "Evidanor | " + title;
   }, [location.pathname]);
   const navigationPanel = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -91,6 +91,7 @@ export function AppLayout() {
 
   return (
     <div className="app-shell" id="dashboard-top">
+      <a className="skip-link" href="#main-content">Skip to main content</a>
       {mobileNav && (
         <div className="sidebar-scrim" onClick={() => setMobileNav(false)} />
       )}
@@ -112,20 +113,18 @@ export function AppLayout() {
           className="brand"
           to="/dashboard"
           onClick={() => setMobileNav(false)}
-          aria-label="MedOps dashboard"
+          aria-label="Evidanor dashboard"
         >
-          <span className="brand-icon">
-            <Activity size={25} strokeWidth={2.5} />
-          </span>
+          <BrandMark size={36} />
           <span>
-            Med<span className="brand-light">Ops</span>
-            <small>ENGINEERING INTELLIGENCE</small>
+            Evidanor
+            <small>ENGINEERING WORKSPACE</small>
           </span>
         </Link>
         <div className="workspace-label">WORKSPACE</div>
 
         <nav>
-          {nav.map((item) =>
+          {nav.filter((item) => item.path).map((item) =>
             item.path ? (
               <NavLink
                 key={item.name}
@@ -150,26 +149,19 @@ export function AppLayout() {
             ),
           )}
         </nav>
+        <details className="planned-nav"><summary>Planned modules</summary><div>
+          {nav.filter((item) => !item.path).map((item) => <button key={item.name} className="nav-item" disabled><item.icon size={17}/><span>{item.name}</span><small>Planned</small></button>)}
+        </div></details>
 
         <div className="sidebar-bottom">
-          <div className="foundation-card">
-            <span>
-              <ShieldCheck size={17} /> BUILT FOR CONTINUITY
-            </span>
-            <p>
-              Prevent failures before
-              <br />
-              they interrupt care.
-            </p>
-            <small>v0.2 · Engineering Reviews</small>
-          </div>
+          <p className="sidebar-positioning">Infrastructure intelligence,<br/>grounded in evidence.</p>
           <div className="profile">
             <span className="avatar">EN</span>
             <div>
               <strong>Engineering team</strong>
               <small>Demo workspace</small>
             </div>
-            <span className="profile-dot" />
+            <small className="sidebar-version">v0.3</small>
           </div>
         </div>
       </aside>
@@ -195,10 +187,7 @@ export function AppLayout() {
             </div>
           </div>
           <div className="topbar-right">
-            <span className="simulation-badge">
-              <span />
-              SIMULATION MODE
-            </span>
+            <details className="synthetic-indicator"><summary><FlaskConical size={16}/><span>Synthetic Demonstration Data</span><Info size={14}/></summary><p>Fictional equipment, readings and limits for product demonstration. This is a simulated snapshot, not a live connection. Controls never command real equipment. Human review records do not authorize equipment use.</p></details>
             <span className="topbar-divider" />
             <button
               className="notification-button"
@@ -212,7 +201,7 @@ export function AppLayout() {
           </div>
         </header>
 
-        <main>
+        <main id="main-content">
           {assetId && !selected && (
             <div className="invalid-asset-notice" role="alert">
               <span>
@@ -226,21 +215,16 @@ export function AppLayout() {
           <footer className="page-footer">
             <span>
               <span className="footer-logo">
-                <Activity size={14} /> MedOps
+                <BrandMark size={18} /> Evidanor
               </span>
               <span className="footer-separator">/</span>Infrastructure
-              intelligence. Care continuity.
+              intelligence, grounded in evidence.
             </span>
             <span>
               <Check size={13} />
-              All equipment data is synthetic · v0.2
+              Synthetic demonstration · v0.3
             </span>
           </footer>
-          <p className="safety-note">
-            <BookOpen size={13} />
-            Demonstration only. Readings and condition limits are fictional and
-            must not be used for clinical or engineering decisions.
-          </p>
         </main>
       </div>
       {selected && (

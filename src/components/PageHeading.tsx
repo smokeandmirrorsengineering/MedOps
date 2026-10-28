@@ -1,37 +1,23 @@
-import { CalendarDays, ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
+import { Clock3 } from "lucide-react";
 import { useDemoData } from "../state/DemoDataProvider";
 import { date, time } from "../lib/format";
+import { PageHeader } from "./PageHeader";
 
 export function PageHeading({
   page,
   title,
   description,
+  actions,
 }: {
   page: string;
   title: string;
   description: string;
+  actions?: ReactNode;
 }) {
   const { snapshot } = useDemoData();
   return (
-    <div className="page-heading">
-      <div>
-        <div className="breadcrumb">
-          Workspace <ChevronRight size={12} />
-          {page}
-        </div>
-        <h1 tabIndex={-1}>
-          {title}
-          <span className="title-dot">.</span>
-        </h1>
-        <p>{description}</p>
-      </div>
-      <div className="date-card">
-        <CalendarDays size={17} />
-        <div>
-          <strong>{date(snapshot.now)}</strong>
-          <span>Simulated snapshot · {time(snapshot.now)} BDT</span>
-        </div>
-      </div>
-    </div>
+    <PageHeader page={page} title={title} description={description} actions={actions}
+      meta={<><Clock3 size={14} /> Simulated snapshot · {date(snapshot.now)} · {time(snapshot.now)} BDT (UTC+6)</>} />
   );
 }
