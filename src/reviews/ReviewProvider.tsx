@@ -7,6 +7,7 @@ import { createReview, saveResponse, submitReview } from "./model";
 import type { ResponseInput } from "./model";
 import { readReviews, writeReviews } from "./persistence";
 import { otTemplate } from "./template";
+import { focusedTemplate, FOCUSED_TEMPLATE_ID } from "./focused";
 import { reviewClock } from "./types";
 import type { ReviewClock, ReviewSession, ReviewStore } from "./types";
 
@@ -18,6 +19,9 @@ interface ReviewsContextValue {
     technician: string;
     role: string;
     openingNotes: string;
+    templateId?: string;
+    subjectAssetId?: string;
+    sourceFollowUpId?: string;
   }): string;
   save(
     id: string,
@@ -68,7 +72,31 @@ export function ReviewProvider({
     status,
     clock,
     start(input) {
-      const review = createReview(otTemplate, input, clock);
+      const {
+        templateId = otTemplate.id,
+        subjectAssetId,
+        sourceFollowUpId,
+        ...identity
+      } = input;
+      if (![otTemplate.id, FOCUSED_TEMPLATE_ID].includes(templateId))
+        throw Error("Choose an available review template.");
+      const template =
+        templateId === FOCUSED_TEMPLATE_ID
+          ? focusedTemplate(snapshot, subjectAssetId ?? "")
+          : otTemplate;
+      const review = createReview(
+        template,
+        {
+          ...identity,
+          ...(templateId === FOCUSED_TEMPLATE_ID
+            ? {
+                subjectAssetId,
+                ...(sourceFollowUpId ? { sourceFollowUpId } : {}),
+              }
+            : {}),
+        },
+        clock,
+      );
       commit(review);
       return review.id;
     },

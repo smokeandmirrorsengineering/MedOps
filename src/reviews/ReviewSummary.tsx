@@ -27,6 +27,11 @@ export function ReviewSummary({ review }: { review: ReviewSession }) {
         <header className="executive-title">
           <h1>{review.template.title}</h1>
           <p>MedOps Demo Hospital (fictional) · {review.scope}</p>
+          {review.sourceFollowUpId && (
+            <p className="executive-identity">
+              Independent re-verification source: {review.sourceFollowUpId}
+            </p>
+          )}
           <p className="executive-identity">
             {review.id} · Template v{review.template.version}
           </p>

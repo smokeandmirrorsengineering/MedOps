@@ -235,9 +235,28 @@ export function deriveExceptions(review: ReviewSession): ReviewException[] {
 }
 export function createReview(
   template: ReviewTemplate,
-  input: { technician: string; role: string; openingNotes: string },
+  input: {
+    technician: string;
+    role: string;
+    openingNotes: string;
+    subjectAssetId?: string;
+    sourceFollowUpId?: string;
+  },
   clock: ReviewClock,
 ): ReviewSession {
+  if (
+    template.id === "focused-equipment-investigation" &&
+    (template.scopeAssetIds.length !== 1 ||
+      input.subjectAssetId !== template.scopeAssetIds[0] ||
+      template.items.some(
+        (item) =>
+          item.assetIds.length !== 1 ||
+          item.assetIds[0] !== input.subjectAssetId,
+      ))
+  )
+    throw Error(
+      "The focused investigation must be bound to its selected equipment from creation.",
+    );
   if (!hasText(input.technician) || !hasText(input.role))
     throw new Error(
       "Technician name and role are required (unverified typed information).",

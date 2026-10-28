@@ -9,6 +9,8 @@ import type {
 } from "./types";
 import { scopeAssetIds } from "./template";
 import { deriveExceptions, responseErrors } from "./model";
+import { demoSnapshot } from "../data/demo";
+import { focusedItems, FOCUSED_TEMPLATE_ID } from "./focused";
 
 export const REVIEW_STORAGE_KEY = "medops.engineering-reviews.v1";
 export const emptyReviews = (): ReviewStore => ({
@@ -42,7 +44,10 @@ function human(v: unknown): boolean {
     ])
   );
 }
-export function validEvidence(v: unknown): v is EvidenceSnapshot {
+export function validEvidence(
+  v: unknown,
+  allowedAssetIds: readonly string[] = scopeAssetIds,
+): v is EvidenceSnapshot {
   return (
     obj(v) &&
     date(v.simulatedAt) &&
@@ -52,7 +57,7 @@ export function validEvidence(v: unknown): v is EvidenceSnapshot {
       (a) =>
         obj(a) &&
         nonempty(a.id) &&
-        scopeAssetIds.includes(a.id) &&
+        allowedAssetIds.includes(a.id) &&
         fields(a, ["name", "location", "method", "connectivity", "source"]) &&
         member(a.condition, ["Normal", "Attention", "Critical", "Unknown"]) &&
         member(a.operatingState, ["Running", "Standby", "Stopped"]) &&
@@ -94,12 +99,13 @@ export function validEvidence(v: unknown): v is EvidenceSnapshot {
         fields(i, ["key", "title", "observation"]) &&
         member(i.source, ["Review exception", "Synthetic alarm"]) &&
         (i.assetId === null ||
-          (text(i.assetId) && scopeAssetIds.includes(i.assetId))) &&
+          (text(i.assetId) && allowedAssetIds.includes(i.assetId))) &&
         (i.reviewId === null || text(i.reviewId)),
     )
   );
 }
 function template(v: unknown): v is ReviewTemplate {
+  if (obj(v) && v.id === FOCUSED_TEMPLATE_ID) return focusedTemplateRecord(v);
   return (
     obj(v) &&
     v.id === "ot-engineering-review" &&
@@ -139,25 +145,74 @@ function template(v: unknown): v is ReviewTemplate {
     )
   );
 }
-function response(v: unknown): v is ItemResponse {
+function focusedTemplateRecord(
+  v: Record<string, unknown>,
+): v is Record<string, unknown> & ReviewTemplate {
+  const ids = v.scopeAssetIds;
+  if (
+    !Array.isArray(ids) ||
+    ids.length !== 1 ||
+    !demoSnapshot.assets.some((asset) => asset.id === ids[0]) ||
+    v.scopeId !== `asset:${ids[0]}` ||
+    v.version !== "1.0" ||
+    !fields(v, ["title", "scope", "disclaimer"]) ||
+    !Array.isArray(v.items) ||
+    v.items.length !== 3
+  )
+    return false;
+  return v.items.every(
+    (item, index) =>
+      obj(item) &&
+      item.id === focusedItems[index].id &&
+      item.order === index + 1 &&
+      fields(item, ["title", "section", "prompt", "limitation"]) &&
+      item.kind === "equipment" &&
+      item.humanOnly === false &&
+      Array.isArray(item.assetIds) &&
+      item.assetIds.length === 1 &&
+      item.assetIds[0] === ids[0] &&
+      Array.isArray(item.pointLabels) &&
+      item.pointLabels.length === 0 &&
+      Array.isArray(item.allowedResponses) &&
+      item.allowedResponses.length === choices.length &&
+      new Set(item.allowedResponses).size === choices.length &&
+      item.allowedResponses.every((choice) => member(choice, choices)) &&
+      Array.isArray(item.allowedMethods) &&
+      item.allowedMethods.length === methods.length &&
+      new Set(item.allowedMethods).size === methods.length &&
+      item.allowedMethods.every((method) => member(method, methods)) &&
+      obj(item.rules) &&
+      item.rules.observationOnAbnormal === true &&
+      item.rules.reconcilePassConflict === true &&
+      obj(item.rules.tolerances) &&
+      Object.values(item.rules.tolerances).every(
+        (value) =>
+          typeof value === "number" && Number.isFinite(value) && value >= 0,
+      ),
+  );
+}
+function response(
+  v: unknown,
+  allowedAssetIds: readonly string[],
+): v is ItemResponse {
   return (
     obj(v) &&
     human(v) &&
     text(v.itemId) &&
     date(v.savedAt) &&
-    validEvidence(v.evidence) &&
+    validEvidence(v.evidence, allowedAssetIds) &&
     array(
       v.gaps,
       (g) =>
         obj(g) &&
         human(g) &&
         text(g.assetId) &&
-        scopeAssetIds.includes(g.assetId),
+        allowedAssetIds.includes(g.assetId),
     ) &&
     strings(v.acknowledgedIssues) &&
     (v.changeAcknowledgement === null ||
       (obj(v.changeAcknowledgement) &&
-        validEvidence(v.changeAcknowledgement.evidence) &&
+        validEvidence(v.changeAcknowledgement.evidence, allowedAssetIds) &&
         nonempty(v.changeAcknowledgement.note) &&
         date(v.changeAcknowledgement.notedAt) &&
         strings(v.changeAcknowledgement.changes)))
@@ -181,11 +236,23 @@ export function validReview(v: unknown): v is ReviewSession {
     !Array.isArray(v.exceptions)
   )
     return false;
+  if (
+    v.template.id === FOCUSED_TEMPLATE_ID
+      ? v.subjectAssetId !== v.template.scopeAssetIds[0]
+      : v.subjectAssetId !== undefined
+  )
+    return false;
+  if (
+    v.sourceFollowUpId !== undefined &&
+    (!text(v.sourceFollowUpId) ||
+      !/^FU-[A-Za-z0-9-]+$/.test(v.sourceFollowUpId))
+  )
+    return false;
   for (const [key, value] of Object.entries(v.responses)) {
     const item = v.template.items.find((item) => item.id === key);
     if (
       !item ||
-      !response(value) ||
+      !response(value, v.template.scopeAssetIds) ||
       value.itemId !== key ||
       // Saved records may contain legacy N/A follow-up. Restore them verbatim;
       // apply the stricter rule when a draft is saved or submitted now. Rejecting
@@ -205,7 +272,8 @@ export function validReview(v: unknown): v is ReviewSession {
   }
   if (
     v.status === "Submitted" &&
-    (!date(v.submittedAt) || Object.keys(v.responses).length !== 9)
+    (!date(v.submittedAt) ||
+      Object.keys(v.responses).length !== v.template.items.length)
   )
     return false;
   if (v.status === "Draft" && v.submittedAt !== null) return false;

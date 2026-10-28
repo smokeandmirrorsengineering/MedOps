@@ -106,7 +106,7 @@ function ItemEditor({
     <section className="panel review-editor">
       <header className="review-item-heading">
         <span className="small-caps">
-          {item.section} · ITEM {item.order} OF 9
+          {item.section} · ITEM {item.order} OF {review.template.items.length}
         </span>
         <h2>{item.title}</h2>
         <p>{item.prompt}</p>
@@ -354,8 +354,8 @@ export function ReviewRunnerPage() {
   return (
     <>
       <ReviewHeader
-        title="Operating Theatre review"
-        description={`${Object.keys(review.responses).length} of 9 responses saved · Draft · ${review.technician} (${review.role})`}
+        title={review.template.title}
+        description={`${Object.keys(review.responses).length} of ${review.template.items.length} responses saved · Draft · ${review.technician} (${review.role})`}
       />
       <ReviewNav />
       <ReviewStorageNotice />

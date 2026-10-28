@@ -1,4 +1,31 @@
 /* Operational additions reuse Evidence Navy; frozen report print layouts are unchanged. */
+.focused-intro {
+  margin-top: 20px;
+  padding: 20px 24px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+.focused-intro h2 {
+  font-size: 18px;
+  color: var(--text);
+}
+.focused-intro p {
+  font-size: 14px;
+  color: var(--secondary);
+  line-height: 1.6;
+  margin-top: 8px;
+}
+.focused-intro a {
+  flex-shrink: 0;
+}
+.investigation-entry {
+  margin: 16px 0 8px;
+}
+.completion-note .review-primary {
+  margin-top: 12px;
+}
 .current-followups {
   margin-top: 24px;
   padding: 20px 24px;

@@ -287,6 +287,14 @@ function FollowUpEditor({
                     The original exception remains Open. A new engineering
                     review is needed to record independent re-verification.
                   </p>
+                  {record?.assetId && (
+                    <Link
+                      className="review-primary"
+                      to={`/reviews/new?template=focused&subject=${encodeURIComponent(record.assetId)}&fromFollowUp=${encodeURIComponent(record.id)}`}
+                    >
+                      Start Re-verification
+                    </Link>
+                  )}
                 </div>
               )}
               {record && (

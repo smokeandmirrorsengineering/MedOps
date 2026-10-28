@@ -136,6 +136,8 @@ export interface ReviewException {
 }
 export interface ReviewSession {
   id: string;
+  subjectAssetId?: string;
+  sourceFollowUpId?: string;
   template: ReviewTemplate;
   scopeId: string;
   scope: string;

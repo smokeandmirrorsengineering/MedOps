@@ -25,7 +25,7 @@ export function ReviewsHomePage() {
         </div>
         <div>
           <span className="small-caps">
-            ONE DEMONSTRATION TEMPLATE · VERSION {otTemplate.version}
+            OT ENGINEERING REVIEW · VERSION {otTemplate.version}
           </span>
           <h2>{otTemplate.title}</h2>
           <p>{otTemplate.scope}</p>
@@ -34,6 +34,19 @@ export function ReviewsHomePage() {
         <Link className="review-primary" to="/reviews/new">
           <Plus size={16} />
           Start New Review
+        </Link>
+      </section>
+      <section className="panel focused-intro">
+        <div>
+          <h2>Focused Equipment Investigation</h2>
+          <p>
+            Three items for one selected asset: review evidence, independently
+            verify, and document findings with follow-up. Existing verification
+            and snapshot safeguards apply.
+          </p>
+        </div>
+        <Link className="review-secondary" to="/reviews/new?template=focused">
+          Start Focused Investigation
         </Link>
       </section>
       <Link className="review-issues-shortcut" to="/reviews/issues">
@@ -75,7 +88,8 @@ export function ReviewsHomePage() {
                     <small>Submitted {recordTime(review.submittedAt)}</small>
                   )}
                   <small>
-                    {Object.keys(review.responses).length}/9 responses ·{" "}
+                    {Object.keys(review.responses).length}/
+                    {review.template.items.length} responses ·{" "}
                     {review.exceptions.length} open issues
                   </small>
                 </span>

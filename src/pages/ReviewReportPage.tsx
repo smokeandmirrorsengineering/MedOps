@@ -144,6 +144,18 @@ export function ReviewReportPage() {
               responses · {review.exceptions.length} open issues
             </p>
             <dl className="review-report-meta">
+              {review.subjectAssetId && (
+                <div>
+                  <dt>Subject equipment</dt>
+                  <dd className="mono">{review.subjectAssetId}</dd>
+                </div>
+              )}
+              {review.sourceFollowUpId && (
+                <div>
+                  <dt>Independent re-verification source action</dt>
+                  <dd className="mono">{review.sourceFollowUpId}</dd>
+                </div>
+              )}
               <div>
                 <dt>Review ID</dt>
                 <dd className="mono">{review.id}</dd>

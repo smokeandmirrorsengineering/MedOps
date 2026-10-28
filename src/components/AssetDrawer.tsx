@@ -24,10 +24,12 @@ export function AssetDrawer({
   const { history, seedEvents, getAssetSimulation } = useDemoData();
   const scenario = getAssetSimulation(asset.id);
   const { sessions } = useReviews();
-  const relatedReviews = sessions.filter((review) =>
-    Object.values(review.responses).some((response) =>
-      response.evidence.assets.some((evidence) => evidence.id === asset.id),
-    ),
+  const relatedReviews = sessions.filter(
+    (review) =>
+      review.subjectAssetId === asset.id ||
+      Object.values(review.responses).some((response) =>
+        response.evidence.assets.some((evidence) => evidence.id === asset.id),
+      ),
   );
   const closeAction = useRef(onClose);
   useEffect(() => {
@@ -117,6 +119,13 @@ export function AssetDrawer({
             <div>
               <span className="mono asset-id">{asset.id}</span>
               <h2 id="asset-title">{asset.name}</h2>
+              <Link
+                className="review-primary investigation-entry"
+                to={`/reviews/new?template=focused&subject=${encodeURIComponent(asset.id)}`}
+                onClick={onClose}
+              >
+                Start Investigation
+              </Link>
               <p>{asset.category}</p>
             </div>
           </div>
