@@ -1,39 +1,425 @@
-import {test} from "node:test";
+import { test } from "node:test";
 import assert from "node:assert/strict";
-import {demoSnapshot} from "../data/demo";
-import {buildDashboard} from "../domain/selectors";
-import {initialOverlay,createSimulationReducer,effectiveSnapshot} from "../simulation/model";
-import {saveSimulation} from "../simulation/persistence";
-import {otTemplate,scopeAssetIds} from "./template";
-import {captureEvidence,carriedIssues,evidenceChanges,isGap,openReviewIssues} from "./evidence";
-import {createReview,saveResponse,submitReview} from "./model";
-import {blankVerification} from "./types";
-import type {ReviewSession,ReviewClock,EvidenceSnapshot} from "./types";
-import {deserializeReviews,emptyReviews,readReviews,writeReviews,REVIEW_STORAGE_KEY} from "./persistence";
-let number=0; const clock:ReviewClock={now:()=>"2026-10-28T05:00:00.000Z",id:()=>`REV-TEST-${++number}`};
-const create=()=>createReview(otTemplate,{technician:"Synthetic QA Engineer",role:"Facilities engineer",openingNotes:"Synthetic demo"},clock);
-const reduce=createSimulationReducer(demoSnapshot);
-const faulty=effectiveSnapshot(demoSnapshot,reduce(initialOverlay(demoSnapshot),{type:"ACTIVATE_FAULT"}));
-const item=otTemplate.items[0];
-const evidence=(snapshot=demoSnapshot,index=0,reviews:ReviewSession[]=[])=>captureEvidence(otTemplate.items[index],otTemplate,snapshot,reviews,clock.now());
-const input=(choice:"Pass"|"Fail"|"Unable to Verify"="Pass")=>({...blankVerification(),choice,method:"Visual inspection" as const,observation:"Synthetic observation against fictional facility criteria.",responsible:"Demo engineering supervisor",followUp:"Review recorded condition and arrange an inspection.",reconciliation:"Synthetic assessment differs from the critical indication; unresolved evidence is retained.",gaps:[],acknowledgedIssues:[]});
-function completed(snapshot=demoSnapshot) {let review=create();for(const row of review.template.items){const e=captureEvidence(row,review.template,snapshot,[],clock.now());const value=input();value.acknowledgedIssues=e.issues.map(issue=>issue.key) as never[];const result=saveResponse(review,row.id,value,e,clock);assert.deepEqual(result.errors,[]);review=result.review;}return review;}
-function current(review:ReviewSession,snapshot=demoSnapshot):Record<string,EvidenceSnapshot>{return Object.fromEntries(review.template.items.map(row=>[row.id,captureEvidence(row,review.template,snapshot,[],clock.now())]));}
+import { demoSnapshot } from "../data/demo";
+import { buildDashboard } from "../domain/selectors";
+import {
+  initialOverlay,
+  createSimulationReducer,
+  effectiveSnapshot,
+} from "../simulation/model";
+import { saveSimulation } from "../simulation/persistence";
+import { otTemplate, scopeAssetIds } from "./template";
+import {
+  captureEvidence,
+  carriedIssues,
+  evidenceChanges,
+  isGap,
+  openReviewIssues,
+} from "./evidence";
+import { createReview, saveResponse, submitReview } from "./model";
+import { blankVerification } from "./types";
+import type { ReviewSession, ReviewClock, EvidenceSnapshot } from "./types";
+import {
+  deserializeReviews,
+  emptyReviews,
+  readReviews,
+  writeReviews,
+  REVIEW_STORAGE_KEY,
+} from "./persistence";
+let number = 0;
+const clock: ReviewClock = {
+  now: () => "2026-10-28T05:00:00.000Z",
+  id: () => `REV-TEST-${++number}`,
+};
+const create = () =>
+  createReview(
+    otTemplate,
+    {
+      technician: "Synthetic QA Engineer",
+      role: "Facilities engineer",
+      openingNotes: "Synthetic demo",
+    },
+    clock,
+  );
+const reduce = createSimulationReducer(demoSnapshot);
+const faulty = effectiveSnapshot(
+  demoSnapshot,
+  reduce(initialOverlay(demoSnapshot), { type: "ACTIVATE_FAULT" }),
+);
+const item = otTemplate.items[0];
+const evidence = (
+  snapshot = demoSnapshot,
+  index = 0,
+  reviews: ReviewSession[] = [],
+) =>
+  captureEvidence(
+    otTemplate.items[index],
+    otTemplate,
+    snapshot,
+    reviews,
+    clock.now(),
+  );
+const input = (choice: "Pass" | "Fail" | "Unable to Verify" = "Pass") => ({
+  ...blankVerification(),
+  choice,
+  method: "Visual inspection" as const,
+  observation: "Synthetic observation against fictional facility criteria.",
+  responsible: "Demo engineering supervisor",
+  followUp: "Review recorded condition and arrange an inspection.",
+  reconciliation:
+    "Synthetic assessment differs from the critical indication; unresolved evidence is retained.",
+  gaps: [],
+  acknowledgedIssues: [],
+});
+function completed(snapshot = demoSnapshot) {
+  let review = create();
+  for (const row of review.template.items) {
+    const e = captureEvidence(row, review.template, snapshot, [], clock.now());
+    const value = input();
+    value.acknowledgedIssues = e.issues.map((issue) => issue.key) as never[];
+    const result = saveResponse(review, row.id, value, e, clock);
+    assert.deepEqual(result.errors, []);
+    review = result.review;
+  }
+  return review;
+}
+function current(
+  review: ReviewSession,
+  snapshot = demoSnapshot,
+): Record<string, EvidenceSnapshot> {
+  return Object.fromEntries(
+    review.template.items.map((row) => [
+      row.id,
+      captureEvidence(row, review.template, snapshot, [], clock.now()),
+    ]),
+  );
+}
 
-test("one versioned template has nine unique, ordered IDs and supported actual OT associations",()=>{assert.equal(otTemplate.items.length,9);assert.equal(new Set(otTemplate.items.map(i=>i.id)).size,9);for(const id of scopeAssetIds)assert.equal(demoSnapshot.assets.find(a=>a.id===id)?.locationId,"loc-ot");assert.ok(!scopeAssetIds.includes("FRG-BB-01"));assert.equal(otTemplate.items[3].humanOnly,true);assert.equal(otTemplate.items[5].assetIds.length,0);});
-test("review creation uses injected real-record clock and unverified typed identity with no automatic responses",()=>{const r=create();assert.equal(r.status,"Draft");assert.deepEqual(r.responses,{});assert.equal(r.createdAt,clock.now());assert.notEqual(r.createdAt,demoSnapshot.now);assert.throws(()=>createReview(otTemplate,{technician:"",role:"",openingNotes:""},clock));});
-test("Normal equipment never preselects Pass, and missing response/method cannot save",()=>{const r=create();assert.ok(saveResponse(r,item.id,{...input(),choice:""},evidence(),clock).errors.length);assert.ok(saveResponse(r,item.id,{...input(),method:""},evidence(),clock).errors.length);assert.deepEqual(r.responses,{});});
-test("Unable to Verify and Not Applicable require explanatory observations; Other needs explanation",()=>{for(const choice of ["Unable to Verify","Not Applicable"] as const)assert.ok(saveResponse(create(),otTemplate.items[2].id,{...input(),choice,observation:""},evidence(demoSnapshot,2),clock).errors.length);assert.ok(saveResponse(create(),otTemplate.items[2].id,{...input(),method:"Other",observation:"",notes:""},evidence(demoSnapshot,2),clock).errors.length);});
-test("Pass versus Critical requires reconciliation and retains a discrepancy without altering equipment",()=>{const before=JSON.stringify(faulty);assert.ok(saveResponse(create(),item.id,{...input(),reconciliation:""},evidence(faulty),clock).errors.some(e=>e.includes("reconciliation")));const saved=saveResponse(create(),item.id,input(),evidence(faulty),clock);assert.deepEqual(saved.errors,[]);assert.ok(saved.review.exceptions.some(e=>e.assetId==="AHU-OT-01"&&e.issueType==="Evidence discrepancy"));assert.equal(JSON.stringify(faulty),before);assert.equal(buildDashboard(faulty).counts.Critical,2);});
-test("abnormal observations and exception ownership/follow-up are required",()=>{assert.ok(saveResponse(create(),item.id,{...input(),observation:""},evidence(faulty),clock).errors.length);assert.ok(saveResponse(create(),item.id,{...input("Fail"),followUp:""},evidence(faulty),clock).errors.length);});
-test("saved evidence captures simulated and actual clocks separately and remains Critical after fault clearance",()=>{const saved=saveResponse(create(),item.id,input(),evidence(faulty),clock).review.responses[item.id];assert.equal(saved.evidence.assets[0].condition,"Critical");assert.equal(saved.evidence.simulatedAt,demoSnapshot.now);assert.equal(saved.evidence.capturedAt,clock.now());assert.equal(evidence().assets[0].condition,"Normal");assert.equal(saved.evidence.assets[0].condition,"Critical");});
-test("draft edits reconcile obsolete exceptions and deduplicate stable keys",()=>{let r=saveResponse(create(),otTemplate.items[2].id,input("Fail"),evidence(demoSnapshot,2),clock).review;assert.equal(r.exceptions.length,1);r=saveResponse(r,otTemplate.items[2].id,input("Fail"),evidence(demoSnapshot,2),clock).review;assert.equal(r.exceptions.length,1);r=saveResponse(r,otTemplate.items[2].id,input(),evidence(demoSnapshot,2),clock).review;assert.equal(r.exceptions.length,0);});
-test("monitoring gaps are scoped and individually verified, excluding unrelated disconnected refrigeration",()=>{let overlay=reduce(initialOverlay(demoSnapshot),{type:"LOSE_CONNECTION",assetId:"FRG-BB-01"});assert.equal(evidence(effectiveSnapshot(demoSnapshot,overlay),6).assets.filter(isGap).length,0);overlay=reduce(overlay,{type:"LOSE_CONNECTION",assetId:"AHU-OT-01"});const e=evidence(effectiveSnapshot(demoSnapshot,overlay),6);assert.deepEqual(e.assets.filter(isGap).map(a=>a.id),["AHU-OT-01"]);assert.ok(saveResponse(create(),otTemplate.items[6].id,input(),e,clock).errors.some(s=>s.includes("individual")));const value={...input(),gaps:[{...input("Unable to Verify"),assetId:"AHU-OT-01"}]};assert.deepEqual(saveResponse(create(),otTemplate.items[6].id,value,e,clock).errors,[]);});
-test("evidence changes ignore timestamps and small numeric fluctuations but detect meaningful changes",()=>{const a=evidence(),b=structuredClone(a);b.capturedAt="2026-10-28T06:00:00.000Z";b.assets[0].readings[0].timestamp="2026-10-27T03:29:00.000Z";b.assets[0].readings[0].value!+=0.1;assert.deepEqual(evidenceChanges(a,b,item),[]);b.assets[0].readings[0].value!+=1;assert.ok(evidenceChanges(a,b,item).length);assert.ok(evidenceChanges(a,evidence(faulty),item).length);});
-test("revisiting changed evidence requires explicit refresh or retention with a discrepancy",()=>{let r=saveResponse(create(),item.id,input(),evidence(faulty),clock).review;assert.ok(saveResponse(r,item.id,input(),evidence(),clock).errors.length);const kept=saveResponse(r,item.id,input(),evidence(),clock,{retentionNote:"Fault cleared after my observation; retain the original recorded Critical evidence."});assert.deepEqual(kept.errors,[]);assert.equal(kept.review.responses[item.id].evidence.assets[0].condition,"Critical");assert.ok(kept.review.exceptions.some(e=>e.issueType==="Evidence changed"));const fresh=saveResponse(r,item.id,input(),evidence(),clock,{refresh:true});assert.deepEqual(fresh.errors,[]);assert.equal(fresh.review.responses[item.id].evidence.assets[0].condition,"Normal");});
-test("carried issues use this scope only and acknowledgement does not close anything",()=>{const r=completed();const submitted=submitReview(r,current(r),clock).review;const issues=carriedIssues(otTemplate,demoSnapshot,[submitted]);assert.ok(issues.some(i=>i.source==="Review exception"));assert.ok(!issues.some(i=>i.assetId==="MG-O2-01"));assert.equal(openReviewIssues([submitted]).length,submitted.exceptions.length);const e=evidence(demoSnapshot,7,[submitted]);assert.ok(saveResponse(create(),otTemplate.items[7].id,input(),e,clock).errors.some(s=>s.includes("Acknowledge")));});
-test("submission requires all saved responses and checks evidence again",()=>{assert.ok(submitReview(create(),current(create()),clock).errors.length);const r=completed();assert.ok(submitReview(r,current(r,faulty),clock).errors.some(s=>s.includes("Evidence changed")));});
-test("submitted reports freeze wording, responses, Critical evidence and open exceptions",()=>{const r=completed(faulty);const result=submitReview(r,current(r,faulty),clock);assert.deepEqual(result.errors,[]);const submitted=result.review;const json=JSON.stringify(submitted);r.template.items[0].title="Later template wording";assert.notEqual(submitted.template.items[0].title,r.template.items[0].title);assert.ok(saveResponse(submitted,item.id,input(),evidence(),clock).errors.length);assert.equal(JSON.stringify(submitted),json);assert.equal(submitted.responses[item.id].evidence.assets[0].condition,"Critical");assert.ok(openReviewIssues([submitted]).some(({exception})=>exception.assetId==="AHU-OT-01"));});
-test("review persistence round-trip preserves drafts and frozen submitted records separately from simulation",()=>{const map=new Map<string,string>();const storage={getItem:(k:string)=>map.get(k)??null,setItem:(k:string,v:string)=>{map.set(k,v);},removeItem:(k:string)=>{map.delete(k);}};const draft=completed(faulty);const submitted=submitReview(draft,current(draft,faulty),clock).review;const store={schemaVersion:1 as const,sessions:[submitted,create()]};assert.equal(writeReviews(storage,store),true);assert.deepEqual(readReviews(storage).store,store);const before=map.get(REVIEW_STORAGE_KEY);saveSimulation(storage,initialOverlay(demoSnapshot));assert.equal(map.get(REVIEW_STORAGE_KEY),before);});
-test("malformed review storage, schema mismatch and missing fields recover safely",()=>{for(const raw of ["{bad","null","[]","{}",JSON.stringify({schemaVersion:999,sessions:[]}),JSON.stringify({schemaVersion:1,sessions:[{id:"x"}]})]){assert.equal(deserializeReviews(raw),null);assert.equal(readReviews({getItem:()=>raw,setItem:()=>{},removeItem:()=>{}}).status,"recovered");}assert.deepEqual(readReviews(undefined).store,emptyReviews());});
-test("blocked and quota-limited review storage returns failure without claiming persistence",()=>{const storage={getItem:()=>{throw Error("blocked")},setItem:()=>{throw Error("quota")},removeItem:()=>{}};assert.equal(readReviews(storage).status,"unavailable");assert.equal(writeReviews(storage,emptyReviews()),false);});
+test("one versioned template has nine unique, ordered IDs and supported actual OT associations", () => {
+  assert.equal(otTemplate.items.length, 9);
+  assert.equal(new Set(otTemplate.items.map((i) => i.id)).size, 9);
+  for (const id of scopeAssetIds)
+    assert.equal(
+      demoSnapshot.assets.find((a) => a.id === id)?.locationId,
+      "loc-ot",
+    );
+  assert.ok(!scopeAssetIds.includes("FRG-BB-01"));
+  assert.equal(otTemplate.items[3].humanOnly, true);
+  assert.equal(otTemplate.items[5].assetIds.length, 0);
+});
+test("review creation uses injected real-record clock and unverified typed identity with no automatic responses", () => {
+  const r = create();
+  assert.equal(r.status, "Draft");
+  assert.deepEqual(r.responses, {});
+  assert.equal(r.createdAt, clock.now());
+  assert.notEqual(r.createdAt, demoSnapshot.now);
+  assert.throws(() =>
+    createReview(
+      otTemplate,
+      { technician: "", role: "", openingNotes: "" },
+      clock,
+    ),
+  );
+});
+test("Normal equipment never preselects Pass, and missing response/method cannot save", () => {
+  const r = create();
+  assert.ok(
+    saveResponse(r, item.id, { ...input(), choice: "" }, evidence(), clock)
+      .errors.length,
+  );
+  assert.ok(
+    saveResponse(r, item.id, { ...input(), method: "" }, evidence(), clock)
+      .errors.length,
+  );
+  assert.deepEqual(r.responses, {});
+});
+test("Unable to Verify and Not Applicable require explanatory observations; Other needs explanation", () => {
+  for (const choice of ["Unable to Verify", "Not Applicable"] as const)
+    assert.ok(
+      saveResponse(
+        create(),
+        otTemplate.items[2].id,
+        { ...input(), choice, observation: "" },
+        evidence(demoSnapshot, 2),
+        clock,
+      ).errors.length,
+    );
+  assert.ok(
+    saveResponse(
+      create(),
+      otTemplate.items[2].id,
+      { ...input(), method: "Other", observation: "", notes: "" },
+      evidence(demoSnapshot, 2),
+      clock,
+    ).errors.length,
+  );
+});
+test("Pass versus Critical requires reconciliation and retains a discrepancy without altering equipment", () => {
+  const before = JSON.stringify(faulty);
+  assert.ok(
+    saveResponse(
+      create(),
+      item.id,
+      { ...input(), reconciliation: "" },
+      evidence(faulty),
+      clock,
+    ).errors.some((e) => e.includes("reconciliation")),
+  );
+  const saved = saveResponse(
+    create(),
+    item.id,
+    input(),
+    evidence(faulty),
+    clock,
+  );
+  assert.deepEqual(saved.errors, []);
+  assert.ok(
+    saved.review.exceptions.some(
+      (e) =>
+        e.assetId === "AHU-OT-01" && e.issueType === "Evidence discrepancy",
+    ),
+  );
+  assert.equal(JSON.stringify(faulty), before);
+  assert.equal(buildDashboard(faulty).counts.Critical, 2);
+});
+test("abnormal observations and exception ownership/follow-up are required", () => {
+  assert.ok(
+    saveResponse(
+      create(),
+      item.id,
+      { ...input(), observation: "" },
+      evidence(faulty),
+      clock,
+    ).errors.length,
+  );
+  assert.ok(
+    saveResponse(
+      create(),
+      item.id,
+      { ...input("Fail"), followUp: "" },
+      evidence(faulty),
+      clock,
+    ).errors.length,
+  );
+});
+test("saved evidence captures simulated and actual clocks separately and remains Critical after fault clearance", () => {
+  const saved = saveResponse(
+    create(),
+    item.id,
+    input(),
+    evidence(faulty),
+    clock,
+  ).review.responses[item.id];
+  assert.equal(saved.evidence.assets[0].condition, "Critical");
+  assert.equal(saved.evidence.simulatedAt, demoSnapshot.now);
+  assert.equal(saved.evidence.capturedAt, clock.now());
+  assert.equal(evidence().assets[0].condition, "Normal");
+  assert.equal(saved.evidence.assets[0].condition, "Critical");
+});
+test("draft edits reconcile obsolete exceptions and deduplicate stable keys", () => {
+  let r = saveResponse(
+    create(),
+    otTemplate.items[2].id,
+    input("Fail"),
+    evidence(demoSnapshot, 2),
+    clock,
+  ).review;
+  assert.equal(r.exceptions.length, 1);
+  r = saveResponse(
+    r,
+    otTemplate.items[2].id,
+    input("Fail"),
+    evidence(demoSnapshot, 2),
+    clock,
+  ).review;
+  assert.equal(r.exceptions.length, 1);
+  r = saveResponse(
+    r,
+    otTemplate.items[2].id,
+    input(),
+    evidence(demoSnapshot, 2),
+    clock,
+  ).review;
+  assert.equal(r.exceptions.length, 0);
+});
+test("monitoring gaps are scoped and individually verified, excluding unrelated disconnected refrigeration", () => {
+  let overlay = reduce(initialOverlay(demoSnapshot), {
+    type: "LOSE_CONNECTION",
+    assetId: "FRG-BB-01",
+  });
+  assert.equal(
+    evidence(effectiveSnapshot(demoSnapshot, overlay), 6).assets.filter(isGap)
+      .length,
+    0,
+  );
+  overlay = reduce(overlay, { type: "LOSE_CONNECTION", assetId: "AHU-OT-01" });
+  const e = evidence(effectiveSnapshot(demoSnapshot, overlay), 6);
+  assert.deepEqual(
+    e.assets.filter(isGap).map((a) => a.id),
+    ["AHU-OT-01"],
+  );
+  assert.ok(
+    saveResponse(
+      create(),
+      otTemplate.items[6].id,
+      input(),
+      e,
+      clock,
+    ).errors.some((s) => s.includes("individual")),
+  );
+  const value = {
+    ...input(),
+    gaps: [{ ...input("Unable to Verify"), assetId: "AHU-OT-01" }],
+  };
+  assert.deepEqual(
+    saveResponse(create(), otTemplate.items[6].id, value, e, clock).errors,
+    [],
+  );
+});
+test("evidence changes ignore timestamps and small numeric fluctuations but detect meaningful changes", () => {
+  const a = evidence(),
+    b = structuredClone(a);
+  b.capturedAt = "2026-10-28T06:00:00.000Z";
+  b.assets[0].readings[0].timestamp = "2026-10-27T03:29:00.000Z";
+  b.assets[0].readings[0].value! += 0.1;
+  assert.deepEqual(evidenceChanges(a, b, item), []);
+  b.assets[0].readings[0].value! += 1;
+  assert.ok(evidenceChanges(a, b, item).length);
+  assert.ok(evidenceChanges(a, evidence(faulty), item).length);
+});
+test("revisiting changed evidence requires explicit refresh or retention with a discrepancy", () => {
+  let r = saveResponse(
+    create(),
+    item.id,
+    input(),
+    evidence(faulty),
+    clock,
+  ).review;
+  assert.ok(saveResponse(r, item.id, input(), evidence(), clock).errors.length);
+  const kept = saveResponse(r, item.id, input(), evidence(), clock, {
+    retentionNote:
+      "Fault cleared after my observation; retain the original recorded Critical evidence.",
+  });
+  assert.deepEqual(kept.errors, []);
+  assert.equal(
+    kept.review.responses[item.id].evidence.assets[0].condition,
+    "Critical",
+  );
+  assert.ok(
+    kept.review.exceptions.some((e) => e.issueType === "Evidence changed"),
+  );
+  const fresh = saveResponse(r, item.id, input(), evidence(), clock, {
+    refresh: true,
+  });
+  assert.deepEqual(fresh.errors, []);
+  assert.equal(
+    fresh.review.responses[item.id].evidence.assets[0].condition,
+    "Normal",
+  );
+});
+test("carried issues use this scope only and acknowledgement does not close anything", () => {
+  const r = completed();
+  const submitted = submitReview(r, current(r), clock).review;
+  const issues = carriedIssues(otTemplate, demoSnapshot, [submitted]);
+  assert.ok(issues.some((i) => i.source === "Review exception"));
+  assert.ok(!issues.some((i) => i.assetId === "MG-O2-01"));
+  assert.equal(
+    openReviewIssues([submitted]).length,
+    submitted.exceptions.length,
+  );
+  const e = evidence(demoSnapshot, 7, [submitted]);
+  assert.ok(
+    saveResponse(
+      create(),
+      otTemplate.items[7].id,
+      input(),
+      e,
+      clock,
+    ).errors.some((s) => s.includes("Acknowledge")),
+  );
+});
+test("submission requires all saved responses and checks evidence again", () => {
+  assert.ok(submitReview(create(), current(create()), clock).errors.length);
+  const r = completed();
+  assert.ok(
+    submitReview(r, current(r, faulty), clock).errors.some((s) =>
+      s.includes("Evidence changed"),
+    ),
+  );
+});
+test("submitted reports freeze wording, responses, Critical evidence and open exceptions", () => {
+  const r = completed(faulty);
+  const result = submitReview(r, current(r, faulty), clock);
+  assert.deepEqual(result.errors, []);
+  const submitted = result.review;
+  const json = JSON.stringify(submitted);
+  r.template.items[0].title = "Later template wording";
+  assert.notEqual(submitted.template.items[0].title, r.template.items[0].title);
+  assert.ok(
+    saveResponse(submitted, item.id, input(), evidence(), clock).errors.length,
+  );
+  assert.equal(JSON.stringify(submitted), json);
+  assert.equal(
+    submitted.responses[item.id].evidence.assets[0].condition,
+    "Critical",
+  );
+  assert.ok(
+    openReviewIssues([submitted]).some(
+      ({ exception }) => exception.assetId === "AHU-OT-01",
+    ),
+  );
+});
+test("review persistence round-trip preserves drafts and frozen submitted records separately from simulation", () => {
+  const map = new Map<string, string>();
+  const storage = {
+    getItem: (k: string) => map.get(k) ?? null,
+    setItem: (k: string, v: string) => {
+      map.set(k, v);
+    },
+    removeItem: (k: string) => {
+      map.delete(k);
+    },
+  };
+  const draft = completed(faulty);
+  const submitted = submitReview(draft, current(draft, faulty), clock).review;
+  const store = { schemaVersion: 1 as const, sessions: [submitted, create()] };
+  assert.equal(writeReviews(storage, store), true);
+  assert.deepEqual(readReviews(storage).store, store);
+  const before = map.get(REVIEW_STORAGE_KEY);
+  saveSimulation(storage, initialOverlay(demoSnapshot));
+  assert.equal(map.get(REVIEW_STORAGE_KEY), before);
+});
+test("malformed review storage, schema mismatch and missing fields recover safely", () => {
+  for (const raw of [
+    "{bad",
+    "null",
+    "[]",
+    "{}",
+    JSON.stringify({ schemaVersion: 999, sessions: [] }),
+    JSON.stringify({ schemaVersion: 1, sessions: [{ id: "x" }] }),
+  ]) {
+    assert.equal(deserializeReviews(raw), null);
+    assert.equal(
+      readReviews({
+        getItem: () => raw,
+        setItem: () => {},
+        removeItem: () => {},
+      }).status,
+      "recovered",
+    );
+  }
+  assert.deepEqual(readReviews(undefined).store, emptyReviews());
+});
+test("blocked and quota-limited review storage returns failure without claiming persistence", () => {
+  const storage = {
+    getItem: () => {
+      throw Error("blocked");
+    },
+    setItem: () => {
+      throw Error("quota");
+    },
+    removeItem: () => {},
+  };
+  assert.equal(readReviews(storage).status, "unavailable");
+  assert.equal(writeReviews(storage, emptyReviews()), false);
+});

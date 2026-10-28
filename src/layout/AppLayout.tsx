@@ -24,7 +24,7 @@ const nav = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { name: "Assets", icon: Box, path: "/assets" },
   { name: "Facility Map", icon: Map },
-  { name: "Prechecks", icon: ClipboardCheck },
+  { name: "Engineering Reviews", icon: ClipboardCheck, path: "/reviews" },
   { name: "Maintenance", icon: Wrench },
   { name: "Documents", icon: FileText },
   { name: "Alerts", icon: Bell, path: "/alerts" },
@@ -50,7 +50,10 @@ export function AppLayout() {
           "/assets": "Assets",
           "/alerts": "Alerts",
         } as Record<string, string>
-      )[location.pathname] ?? "Page not found";
+      )[location.pathname] ??
+      (location.pathname.startsWith("/reviews")
+        ? "Engineering Reviews"
+        : "Page not found");
     document.title = "MedOps | " + title;
   }, [location.pathname]);
   const navigationPanel = useRef<HTMLElement>(null);
@@ -158,7 +161,7 @@ export function AppLayout() {
               <br />
               they interrupt care.
             </p>
-            <small>v0.1C · Interactive demo</small>
+            <small>v0.2 · Engineering Reviews</small>
           </div>
           <div className="profile">
             <span className="avatar">EN</span>
@@ -230,7 +233,7 @@ export function AppLayout() {
             </span>
             <span>
               <Check size={13} />
-              All data is synthetic · v0.1C
+              All equipment data is synthetic · v0.2
             </span>
           </footer>
           <p className="safety-note">

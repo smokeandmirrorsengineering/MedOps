@@ -114,6 +114,7 @@ export function DashboardPage() {
         ))}
       </section>
       <DemoControls />
+      <div className="review-dashboard-link"><span>Record the human inspection behind the equipment evidence.</span><Link className="text-link" to="/reviews/new">Start Engineering Review <ArrowRight size={14}/></Link></div>
       <div className="overview-grid">
         <section className="panel condition-overview">
           <div className="panel-heading">
