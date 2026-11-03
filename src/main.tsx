@@ -6,11 +6,13 @@ import { DemoDataProvider } from "./state/DemoDataProvider";
 import { ReviewProvider } from "./reviews/ReviewProvider";
 import { FollowUpProvider } from "./followups/FollowUpProvider";
 import { GuideProvider } from "./guide/GuideProvider";
+import { ServiceProvider } from "./service/ServiceProvider";
 import "./styles.css";
 import "./reviews/reviews.css";
 import "./reviews/report.css";
 import "./enterprise.css";
 import "./operational.css";
+import "./service/service.css";
 
 // Commit URL-driven form updates immediately, including consecutive filter changes.
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -19,9 +21,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <DemoDataProvider>
         <ReviewProvider>
           <FollowUpProvider>
-            <GuideProvider>
+            <ServiceProvider><GuideProvider>
               <App />
-            </GuideProvider>
+            </GuideProvider></ServiceProvider>
           </FollowUpProvider>
         </ReviewProvider>
       </DemoDataProvider>

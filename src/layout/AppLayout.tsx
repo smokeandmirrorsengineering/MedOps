@@ -26,7 +26,7 @@ const nav = [
   { name: "Assets", icon: Box, path: "/assets" },
   { name: "Facility Map", icon: Map },
   { name: "Engineering Reviews", icon: ClipboardCheck, path: "/reviews" },
-  { name: "Maintenance", icon: Wrench },
+  { name: "Service Operations", icon: Wrench, path: "/service" },
   { name: "Documents", icon: FileText },
   { name: "Alerts", icon: Bell, path: "/alerts" },
   { name: "Settings", icon: Settings },
@@ -54,7 +54,7 @@ export function AppLayout() {
       )[location.pathname] ??
       (location.pathname.startsWith("/reviews")
         ? "Engineering Reviews"
-        : "Page not found");
+        : location.pathname.startsWith("/service") ? "Service Operations" : "Page not found");
     document.title = "Evidanor | " + title;
   }, [location.pathname]);
   const navigationPanel = useRef<HTMLElement>(null);
