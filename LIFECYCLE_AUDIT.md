@@ -1,0 +1,13 @@
+# v0.4 architecture audit
+
+Base: completed v0.3.1 `e0736fc`, branch `feature/v0.3.1-operational-loop`, clean working tree. New local branch: `feature/v0.4-lifecycle`. No reset, merge, push or deployment.
+
+- The monitoring `Snapshot` owns 50 assets, location IDs, points and evaluated conditions. Keep it unchanged. A read-only lifecycle registry adapts those identities and locations and adds two distinct manual imaging identities. Manual assets never enter monitoring selectors or simulation.
+- Editable lifecycle metadata is a separate keyed record per registry ID. Existing manufacturer/model values remain available; missing serial numbers and terms are explicit. Warranty and contract dates are evaluated independently against an injectable real-date clock, never the fixed telemetry snapshot.
+- Separate versioned lifecycle and case stores/providers own their writes. Neither receives simulation dispatch or review/follow-up mutation functions. Equipment reset and guide reset cannot clear these stores.
+- Cases reference registry identities. Optional submitted-review/exception and follow-up references are validated at creation; existing records remain distinct. Links derive from cases, so no schema change or rewrite of frozen reviews/follow-ups is necessary.
+- Reuse `PageHeader`, Evidence Navy tokens, Link navigation, review button styles, native labelled inputs, panel/table conventions and the existing asset drawer. Use full case pages, not a large modal. Scoped service print styling must not change review print rules.
+- Append-only case events retain status changes, notes, contact records, quotations, quote-status changes, decisions and meaningful edits. Explicit typed administrative decisions are unauthenticated; case completion cannot change availability, monitoring, exceptions or readiness.
+- New storage validates schema, shapes, dates, uniqueness and internal references. Corrupt/incompatible stored data is retained and protected against automatic replacement; working fallback data stays in memory with an explicit warning. Failed writes never report Saved.
+
+Research checked 4 November 2026: WHO's 2025 inventory/maintenance publication, Accruent TMS overview, and Carbon table guidelines support linked inventory/maintenance records, practical work coordination and searchable compact tables. WHO: https://www.who.int/publications/i/item/9789240111257 ; Accruent: https://www.accruent.com/products/tms ; Carbon: https://www.carbondesignsystem.com/building-blocks/core/components/data-table/guidelines . DGHS eAMS and the supplied Carbon forms URL timed out; no claim was derived from inaccessible content. These are workflow references, not compliance claims or copied interfaces.
