@@ -1,4 +1,41 @@
-# Evidanor v0.3.1 — Operational Follow-Up & Interactive Demo
+# Evidanor v0.4 — Equipment Lifecycle & Service Operations
+
+## What's new in v0.4
+
+**Service Operations** replaces the Maintenance placeholder. Open `/service` for outstanding cases, recorded approval blockers, coverage decisions and recent activity. `/service/equipment` is the combined lifecycle register; the original `/assets` monitoring inventory remains intact.
+
+- **52 lifecycle identities, 50 monitored assets.** The registry adapts all original IDs and adds CT-RAD-01 and MRI-RAD-01 as manually managed imaging equipment. They display **Not connected / Manually managed**, with no telemetry, evaluated Normal/Unknown status or fault simulation. Monitoring baseline remains 43 Normal / 5 Attention / 1 Critical / 1 Unknown.
+- **Coverage:** edit fictional manufacturer/model/serial, supplier/contact, purchase/commissioning dates, warranty, AMC/CMC dates/terms, document references, reported availability and notes. Save/Cancel are explicit. Warranty and service agreements are independently evaluated against today's Asia/Dhaka date. Both effective dates are needed; end dates are inclusive. Default expiry window is 90 days, configurable to 30/90/180 in the register. Missing terms remain unknown; entitlement is not guessed.
+- **Cases:** document problems for either equipment type, assign responsibility, record blockers, reported incident availability, vendor-contact dates/responses, parts text and progress notes. Status changes may move backward or reopen with an explanation. Work completion and administrative closure require meaningful notes. Closed cases must reopen before additional work entries. These actions do not change lifecycle availability, monitoring or readiness.
+- **Quotations & decisions:** record multiple fictional quotations, positive amounts with up to two decimal places, dates, currency (default BDT), scope and coverage assumptions. One quotation can be Selected; changes are logged. Decisions append dated, typed, unverified administrative entries. They do not authorize purchasing/payment or send vendor messages.
+- **Integration:** append-only events retain explicit actions and meaningful details edits. Asset drawers link to coverage and cases. Submitted review issues and existing follow-ups can explicitly create linked cases; no automatic duplicates or conversion. Dashboard gains a compact service entry alongside its original monitoring queue.
+- **Service Case Summary:** `/service/cases/:caseId/summary` displays current operational information, selected/latest quotation, its latest decision, next action and four recent events. Earlier history is explicitly omitted from the summary and retained in the case. Long content flows to more pages. Frozen Engineering Review reports remain separate.
+
+### CT scanner demonstration
+
+1. Open **Service Operations** and review derived counts. Open **Equipment & coverage**, search CT-RAD-01 and select its lifecycle record.
+2. Show **Not connected / Manually managed**, reported Out of service, expired recorded warranty/CMC dates and missing manufacturer/model. Edit a fictional reference or note, Save, then refresh. Cancel discards unsaved changes.
+3. Open the CT case. Review the problem, engineering role, provider, blocker and next action. **Add progress note** or **Record vendor contact / response**, enter explicitly synthetic information and Save. A provider name alone does not create a contact event.
+4. Review DEMO-Q-CT-2026-01: BDT 185,000.00, entirely fictional and not a market price. Optionally record another quotation. Record an administrative decision, date, typed decision-maker and explanatory note. Prior decisions remain under the quotation's disclosure.
+5. **Change status → Service in progress**, with an explanation. Edit the blocker explicitly if it changes. Availability remains unchanged. Work reported complete/administrative closure records an administrative outcome only.
+6. Open **Service Case Summary → Print Service Case Summary**. Refresh the case to confirm details, quotations and history persist. Existing monitoring, reviews and follow-ups remain independent.
+
+Fresh origins receive deterministic CT/MRI scenarios: CT awaiting an administrative decision and MRI awaiting provider response. Saved records always take precedence. The development browser may already contain labelled QA actions/additional cases; use its actual current status or add an explained transition instead of deleting history.
+
+### Storage and limitations
+
+| Key | Contents | Reset behavior |
+| --- | --- | --- |
+| `evidanor:lifecycle:v1` | One editable metadata record per registry identity | Never cleared by equipment or guide reset |
+| `evidanor:service-cases:v1` | Cases, quotations, decisions and append-only events | Never cleared by equipment or guide reset |
+
+The four earlier keys remain unchanged. New stores validate schema, dates, identity, uniqueness, status history and internal references. Invalid/incompatible raw data is retained and protected from replacement; a clearly labelled synthetic fallback is shown. Recover such data before replacing the affected store. There is no destructive recovery or broad reset. Unavailable/quota-limited writes display **NOT SAVED TO BROWSER**, with in-memory updates only. Saved feedback appears only after successful persistence.
+
+Actual events use ISO UTC and display BDT. Entered incident/contact/decision dates, contract dates and synthetic seed times are labelled separately. Coverage uses an injectable real clock, not the fixed monitoring snapshot. Data is browser/profile/origin-local, unauthenticated, unsynchronized and not tamper-proof. Only synthetic information belongs here; this is not production hospital software. No real diagnostics, procurement, authenticated approvals, cloud database or deployment was added.
+
+Active branch: `feature/v0.4-lifecycle`. See [LIFECYCLE_AUDIT.md](LIFECYCLE_AUDIT.md), [ARCHITECTURE.md](ARCHITECTURE.md), [VERIFICATION.md](VERIFICATION.md) and [DEPLOYMENT_PREFLIGHT.md](DEPLOYMENT_PREFLIGHT.md).
+
+## Previous milestone — v0.3.1
 
 **Infrastructure intelligence, grounded in evidence.**
 

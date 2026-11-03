@@ -1,4 +1,24 @@
-# Evidanor architecture — v0.3.1
+# Evidanor architecture — v0.4
+
+## Lifecycle and service operations
+
+The monitoring domain remains the authority for its original 50 assets. `src/service/registry.ts` adapts their identities and locations and adds CT-RAD-01 and MRI-RAD-01 as separate manual identities. It never extends `Snapshot`, monitoring evaluation or simulation. Lifecycle manufacturer/model edits live in metadata and do not rewrite monitoring identity or frozen evidence. The lifecycle register contains 52 unique IDs; the original Assets inventory still contains 50.
+
+`types.ts`, `coverage.ts`, `model.ts` and `seed.ts` define lifecycle metadata, reported availability, cases, quotations, decisions and events. Coverage takes an explicit calendar date and configurable expiry window. Both effective dates are required, the end date is inclusive, and warranty/contract are independent. The provider derives today's Asia/Dhaka date from an injectable actual clock and refreshes it on focus/every minute. Fixed telemetry time is never used for contract evaluation.
+
+Provider nesting is DemoData → Reviews → FollowUps → Service → Guide → App. `ServiceProvider.tsx` reads source references but receives no simulation, review or follow-up mutation callback. Lifecycle/case state uses separate versioned keys. Writes validate before persistence, with successful-write versus in-memory-only feedback. Protected malformed/schema-incompatible raw stores are never automatically replaced. Seeds apply only to missing data or explicitly labelled protected fallbacks; valid saved cases always win.
+
+Case entry validates registry identity, required text, incident time, availability and cross-module references. A submitted exception must belong to the asset; a linked follow-up must agree with its source. A disappeared external source is displayed as unavailable without deleting an existing case. Internal quotation/approval/event references, uniqueness and chronological status chains are checked at load. Details editing whitelists editable fields and logs before/after values; a stale form cannot replace status, quotes or history.
+
+Any different defined case status is an explicit explained transition, including backward moves/reopening. Closed cases must reopen before more work entries. Completion and closure require meaningful notes. Case availability is an incident indication; lifecycle availability changes only through the metadata editor. Quotation additions/status changes, decisions, notes and recorded contact each append actual events. A status never manufactures missing history. Decisions append; actors and decision-makers are typed/unverified. This is not an authenticated audit trail or financial authorization.
+
+`ServiceHomePage.tsx`, `LifecyclePages.tsx`, `CaseForms.tsx` and `ServiceCasePage.tsx` provide the module's overview, searchable/filterable/sortable registers, Save/Cancel forms and full case workspace. Filters live in URLs. `ServiceAssetLinks` extends the existing drawer. `ServiceIntegration.tsx` derives links from original review/exception/follow-up IDs without changing those schemas. New-case URLs use `equipment`, avoiding the global `asset` drawer parameter. Guide behavior is unchanged.
+
+`summary.ts` selects current case/coverage, selected quotation (latest fallback), latest decision for that quotation and four recent events. `ServiceSummaryPage.tsx` is a current operational summary, separate from frozen inspections. Print rules are scoped to `body.service-print-view`, reuse existing A4 defaults and avoid a named-page switch before the article. Navigation/skip link/controls are hidden. Text wraps; long content may paginate without clipping. Existing review print CSS is unchanged.
+
+The audit and primary references are in [LIFECYCLE_AUDIT.md](LIFECYCLE_AUDIT.md). No dependency, database, network communication, authentication, old-record migration or deployment service was added.
+
+## Previous milestone architecture — v0.3.1
 
 ## Operational follow-up loop
 

@@ -1,4 +1,58 @@
-# Verification — Evidanor v0.3.1
+# Verification — Evidanor v0.4
+
+Executed **4 November 2026, Asia/Dhaka**, on `feature/v0.4-lifecycle`, branched from clean completed v0.3.1 `e0736fc`.
+
+## Automated results
+
+- `npm test`: **111 passed, 0 failed**. All 93 existing tests remain; 18 new tests cover registry/coverage/cases/persistence/summary/cross-module integrity and deep routes.
+- `npm run typecheck`: passed.
+- `npm run build`: passed; Vite emits `dist/index.html`, favicon and hashed assets.
+- `git diff --check`: passed.
+- Diff against `e0736fc` for `src/data`, `src/domain`, `src/simulation`, original OT template, review model/persistence and review print CSS is empty. No dependency added or prior record migration performed.
+
+New tests verify 52 unique lifecycle identities and unchanged 50-asset condition totals; no manual asset enters monitoring; independent warranty/contract evaluation, missing/invalid dates, inclusive expiry, 90-day boundary, configurable windows and Dhaka date rollover; deterministic seeds; independent case creation; explicit forward/backward/reopen transitions with required notes; append-only notes/contact/status/decision history; whitelist-only details edits; positive two-decimal amounts/BDT formatting; quotation identity/selection rules; source binding to actual submitted review/follow-up fixtures; malformed/schema/quota/unavailable storage; duplicate IDs/internal reference/time-order rejection; equipment/reset/review/follow-up independence; summary source correctness, complete long text and explicit omitted-event count; direct service routes and recoverable missing identities.
+
+## Browser acceptance scenario
+
+Used the existing local development app at `http://127.0.0.1:5173` in the in-app browser. All newly typed names, work descriptions, provider records and decisions explicitly identify themselves as synthetic UI tests.
+
+1. Service Operations initially showed 2 open cases, 1 awaiting approval, 1 equipment coverage expiring and 1 equipment reported out of service. These matched the actual deterministic records.
+2. CT-RAD-01 displayed **Not connected / Manually managed**, no connected monitoring, Out of service reported, expired warranty/CMC, missing manufacturer/model and explicit fictional terms/contact references.
+3. Found and fixed date-input behavior where a displayed changed date was not committed into the edit state. Retest: invalid warranty end before start produced validation and kept the editor open; Cancel restored the original end. A valid contract-end edit to 2026-03-01 and synthetic reference edit survived refresh. No monitoring data changed.
+4. Opened SC-DEMO-CT-001. Added a synthetic progress note, saved/reloaded, then recorded an **Approved, as recorded** decision with typed demo decision-maker and note. The older Pending decision remained. The original quotation's status changed explicitly to Selected, retaining its history.
+5. Negative quotation amount was rejected. Added a second fictional quote DEMO-Q-CT-UI-ALT for BDT 12,345.67 with explicit synthetic scope and expiry. Both quotations persisted.
+6. Status save with empty explanation was blocked. Moved the CT case to Service in progress with a note, then explicitly edited its blocker/next action. After reload it retained both quotes, ten events and Out of service reported availability. No provider contact event was inferred from status or provider name.
+7. Created independent MRI case `SC-5476a06f-37f5-4270-a972-3e30cfe9e571`. Its entered incident time 3 November, 15:45 BDT persisted separately from actual creation time. Recorded a synthetic vendor-contact entry with a different entered contact date. Marked work reported complete, closed administratively, and reopened to Awaiting vendor response with explanations. Closed-state work controls were absent; reopening and five events survived refresh. Availability stayed Limited use, reported.
+8. Opened the pre-existing completed follow-up `FU-08e78ce4-fa0e-4e37-aa46-a6f651335267`; Open Service Case preselected AHU-OT-01 and its actual review/exception/follow-up IDs without reopening the drawer. Created `SC-c79b2dac-95df-4e00-8698-f2fa13db0ecd`. Source review/follow-up links worked; no duplicate follow-up was created.
+9. Activated the original AHU simulated fault. Reported the linked service work complete; its contextual monitoring still showed Critical. Equipment Reset Demo restored **43 Normal / 5 Attention / 1 Critical / 1 Unknown / 50 total**, while all four cases and current service statuses remained.
+10. Reopened the original focused submission `REV-893d7951-08c1-4b72-94d2-31209b4a3bb1`: its entire rendered Detailed Record text matched the pre-service comparison exactly. Both existing print buttons remained enabled. The original three submitted reviews, two drafts, sixteen exceptions and completed follow-up remained available.
+
+## Responsive and interaction checks
+
+- **21 final layout checks:** service overview, lifecycle register, CT lifecycle detail, CT case, new MRI case form, CT summary and monitored asset drawer at 1440, 768 and 390 px. No page-level horizontal overflow after corrections. Register tables retain internal scrolling; case columns stack and fields remain reachable.
+- The summary initially inherited a global table no-wrap rule. Scoped wrapping fixed the overflow at all three widths and restored the visible brand mark on navy.
+- Case action forms focus the first field and Cancel returns focus to the invoking button. Mobile action form had no page overflow. Labels, semantic tables, native controls and visible focus use the existing design system. No formal screen-reader/WCAG certification was performed.
+- Register filters: manual-only returned two identities; 90-day expiring coverage returned MRI; 30 days returned none. Search/filter state survived refresh. Save/Cancel, required notes and amount errors were exercised through actual controls.
+
+## Printing — observed and limits
+
+The summary displayed the latest selected quote, recorded decision, coverage, current case/availability, blocker and retained history. The user confirmed printing worked but reported a blank first sheet. Removed the named `@page serviceCase`/`page: serviceCase` switch that could force the article onto a second page, and excluded the navigation skip link as well as controls from print. The current production CSS contains no service named-page assignment; it uses the unchanged existing A4 portrait defaults.
+
+The in-app browser print action entered a native print flow and its automated click timed out; Escape returned to the report. **A post-fix native print preview/page count was not independently inspected.** No final one-page pagination claim is made. The primary synthetic example targets one page; longer actual notes/history may flow to more pages without clipping. Existing Engineering Review print CSS is unchanged.
+
+## Production smoke and Cloudflare preflight
+
+- Served the built bundle on local port 4173. Direct CT case and lifecycle URLs loaded and survived refresh. A new production-origin case note survived reload. The corrected summary loaded directly; a missing case ID showed Service case unavailable after refresh.
+- Existing production-origin OT and focused drafts remained recoverable together (one of nine and one of three saved responses respectively). Development-origin records were not copied into this origin.
+- Production warning/error log was empty. No new source localhost dependency or machine path was found. Bundle contains React Router's internal `http://localhost` URL-resolution fallback strings; these are library parsing defaults, not a configured endpoint. No user/browser data or machine-specific paths are bundled.
+- No top-level custom 404 or redirect file exists. BrowserRouter routes and current output fit Cloudflare's documented SPA fallback. No hosting account, domain, deployment, authentication or cloud database was configured. See [DEPLOYMENT_PREFLIGHT.md](DEPLOYMENT_PREFLIGHT.md).
+- Temporary production server stopped and viewport override reset. Existing development app remains available at `http://127.0.0.1:5173/service`. Browser test records remain; native Chrome data was not edited. Screenshot: `.qa/evidanor-v04-service-case.png`.
+
+## Handover limits
+
+All core v0.4 features were implemented. Stores remain local, unauthenticated and unsynchronized; typed decisions are not procurement approvals. Bad stored data is protected from automatic overwrite and requires recovery before that store can be saved. Storage corruption/quota checks used throwing/memory adapters, not destructive edits to browser data. No real equipment, vendor communication, physical maintenance, readiness authorization, sensitive data or real financial transaction was involved. No push, merge or deployment.
+
+## Previous milestone verification — v0.3.1
 
 Executed **29 October 2026 (Asia/Dhaka)** on `feature/v0.3.1-operational-loop`, branched from completed v0.3 commit `41a115c` with a clean working tree.
 

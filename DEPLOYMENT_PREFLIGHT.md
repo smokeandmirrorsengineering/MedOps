@@ -1,4 +1,19 @@
-# Cloudflare Pages preflight — Evidanor v0.3.1
+# Cloudflare Pages preflight — Evidanor v0.4
+
+Checked locally on **4 November 2026**. Nothing deployed, pushed or merged.
+
+- Install `npm ci`; build `npm run build`; output `dist`; site-root Vite base `/` unchanged. No new dependency or server endpoint.
+- React `BrowserRouter` includes `/service`, `/service/equipment`, `/service/equipment/:assetId`, `/service/cases`, `/service/cases/new`, `/service/cases/:caseId` and `/service/cases/:caseId/summary`. New-case subject binding uses query `equipment`, avoiding the existing global `asset` drawer parameter.
+- Actual production bundle served locally on 4173: direct CT case, lifecycle and summary routes loaded, refreshed and retained local case updates. Missing cases show a recoverable page. Existing OT/focused drafts still restore.
+- No top-level `404.html` in public/output. No `_redirects` was added. This output fits Cloudflare Pages' [documented SPA fallback](https://developers.cloudflare.com/pages/configuration/serving-pages/#single-page-application-spa-rendering), checked during this milestone. Hosted-domain route refresh still requires verification after a separately authorized deployment.
+- Scanned production assets for loopback URLs and Windows workspace/user paths. No machine-specific paths or configured localhost dependencies. Two `http://localhost` strings belong to React Router's URL-resolution parsing fallback; they do not configure requests to a local service.
+- The new stores are `evidanor:lifecycle:v1` and `evidanor:service-cases:v1`. They stay on the visitor's browser/profile/origin alongside the four existing keys. Development records are not automatically copied to a deployment; each visitor receives independent deterministic examples until saving their own records.
+- A private Git repository does not protect a public deployed site. No authentication, cloud persistence or actual financial authority exists. Use synthetic information only.
+- Current Service Case Summary print CSS reuses A4 defaults without a named-page switch. The user-reported blank leading sheet was addressed in CSS; post-fix native pagination remains unverified. Recheck on the intended browser after deployment; no physical print job is claimed.
+
+Production build and local routing preflight passed. This is not a Cloudflare deployment or hosted integration test. Temporary preview server stopped after QA.
+
+## Previous milestone preflight — v0.3.1
 
 Checked locally on 29 October 2026. **Nothing was deployed, pushed or merged.**
 
