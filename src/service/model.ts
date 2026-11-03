@@ -2,7 +2,7 @@ import type { ReviewSession } from "../reviews/types";
 import type { FollowUp } from "../followups/types";
 import { registryAsset } from "./registry";
 import { utcTime, validDate, validAmount } from "./coverage";
-import { availabilities, caseStatuses, quoteStatuses, approvalStatuses, type ServiceCase, type CaseInput, type ServiceClock, type LifecycleRecord, type CaseEvent, type Quotation, type Approval, type CaseStatus } from "./types";
+import { caseInput, availabilities, caseStatuses, quoteStatuses, approvalStatuses, type ServiceCase, type CaseInput, type ServiceClock, type LifecycleRecord, type CaseEvent, type Quotation, type Approval, type CaseStatus } from "./types";
 export type Errors = Record<string,string>;
 export const meaningful = (value: string) => value.trim().length >= 3 && !/^(n\/?a|none|unknown|tbd|-)$/i.test(value.trim());
 export function lifecycleErrors(record: LifecycleRecord): Errors {
@@ -42,11 +42,13 @@ function append(record: ServiceCase, item: CaseEvent, patch: Partial<ServiceCase
   return {...record,...patch,updatedAt:item.at,events:[...record.events,item]};
 }
 export function createCase(input: CaseInput, clock: ServiceClock): ServiceCase {
+  input=caseInput(input);
   if (Object.keys(caseErrors(input)).length) throw Error("Complete the required case fields.");
   const item=event(clock,"Case created",`Issue reported: ${input.problem}`,input.responsible,{to:"Reported"});
   return {...input,title:input.title.trim(),problem:input.problem.trim(),responsible:input.responsible.trim(),id:`SC-${clock.id()}`,status:"Reported",createdAt:item.at,updatedAt:item.at,origin:"User record",quotations:[],approvals:[],events:[item]};
 }
 export function editCase(record: ServiceCase, input: CaseInput, note: string, actor: string, clock: ServiceClock): ServiceCase {
+  input=caseInput(input);
   if (record.status==="Closed administratively") throw Error("Reopen the case before editing its details.");
   if (input.assetId!==record.assetId || Object.keys(caseErrors(input)).length || !meaningful(note)) throw Error("Keep the asset binding and explain the details update.");
   const changes = (Object.keys(input) as (keyof CaseInput)[]).filter(key => input[key]!==record[key]).map(key => `${key}: ${record[key] || "Not recorded"} → ${input[key] || "Not recorded"}`).join("; ");

@@ -1,0 +1,16 @@
+import React from "react";
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ServiceSummary } from "./ServiceSummaryPage";
+import { serviceSummary } from "./summary";
+import { seedCases } from "./seed";
+import { seedLifecycle } from "./registry";
+import { addNote } from "./model";
+import { operationalFixture } from "../test/operationalFixture";
+import { caseErrors, createCase, changeStatus } from "./model";
+import { ADMIN_NOTICE, type CaseInput } from "./types";
+test("CT summary shows current source identity, expiry, quotation, pending decision and explicit boundaries",()=>{const record=seedCases().cases[0],lifecycle=seedLifecycle().records.find(r=>r.assetId===record.assetId)!;const html=renderToStaticMarkup(<ServiceSummary record={record} lifecycle={lifecycle} today="2026-11-04" generatedAt="2026-11-04T04:00:00.000Z"/>);for(const value of ["CT-RAD-01","Expired","185,000.00","Pending","Not connected / Manually managed","SYNTHETIC DEMONSTRATION DATA",ADMIN_NOTICE,"Fictional Delta Imaging Services"])assert.ok(html.includes(value),value);assert.equal(serviceSummary(record,lifecycle,"2026-11-04").events.length,4);assert.throws(()=>serviceSummary(record,{...lifecycle,assetId:"MRI-RAD-01"},"2026-11-04"));});
+test("long service notes remain complete, with explicit omission of older events rather than clipping source text",()=>{let record=seedCases().cases[0];let id=0;const note="Long synthetic progress note ".repeat(100);record=addNote(record,"Progress note added",note,"Typed engineer","",{now:()=>"2026-11-04T04:00:00.000Z",id:()=>`summary-${++id}`});const lifecycle=seedLifecycle().records.find(r=>r.assetId===record.assetId)!;const data=serviceSummary(record,lifecycle,"2026-11-04");assert.equal(data.omittedEvents,1);const html=renderToStaticMarkup(<ServiceSummary record={record} lifecycle={lifecycle} today="2026-11-04" generatedAt="2026-11-04T04:00:00.000Z"/>);assert.ok(html.includes(note.trim()));assert.ok(html.includes("1 earlier events retained"));});
+test("valid review and follow-up references remain independent through service completion",()=>{const fixture=operationalFixture();const review=fixture.review,followup=fixture.action;const before=JSON.stringify(fixture);const input:CaseInput={assetId:"AHU-OT-01",title:"Synthetic linked service case",problem:"Recorded Critical evidence requires service coordination",reportedAt:"2026-11-04T04:00:00.000Z",availability:"Out of service, reported",responsible:"Demo engineer",provider:"",supplierReference:"",issueCategory:"",parts:"",blocker:"",engineeringNotes:"",reviewId:review.id,exceptionId:followup.sourceExceptionId,followUpId:followup.id};assert.deepEqual(caseErrors(input,{reviews:[review],followups:[followup]}),{});assert.ok(caseErrors({...input,assetId:"CT-RAD-01"},{reviews:[review],followups:[followup]}).followUpId);let id=0;const clock={now:()=>"2026-11-04T04:00:00.000Z",id:()=>`linked-${++id}`};const record=createCase(input,clock),done=changeStatus(record,"Closed administratively","Synthetic administrative closure; evidence remains unresolved","Engineer",clock);assert.equal(done.reviewId,review.id);assert.equal(done.availability,"Out of service, reported");assert.equal(JSON.stringify(fixture),before);});
+

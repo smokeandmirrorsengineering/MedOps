@@ -13,6 +13,7 @@ import { ServiceHomePage, ServiceCasesPage } from "./service/ServiceHomePage";
 import { LifecycleRegisterPage, LifecycleDetailPage } from "./service/LifecyclePages";
 import { NewServiceCasePage } from "./service/CaseForms";
 import { ServiceCasePage } from "./service/ServiceCasePage";
+import { ServiceSummaryPage } from "./service/ServiceSummaryPage";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="service/cases" element={<ServiceCasesPage />} />
         <Route path="service/cases/new" element={<NewServiceCasePage />} />
         <Route path="service/cases/:caseId" element={<ServiceCasePage />} />
+        <Route path="service/cases/:caseId/summary" element={<ServiceSummaryPage />} />
         <Route path="reviews" element={<ReviewsHomePage />} />
         <Route path="reviews/new" element={<ReviewStartPage />} />
         <Route path="reviews/issues" element={<ReviewIssuesPage />} />

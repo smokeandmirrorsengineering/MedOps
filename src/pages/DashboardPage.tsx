@@ -21,6 +21,7 @@ import { StatusBadge, conditionIcons } from "../components/StatusBadge";
 import { PageHeading } from "../components/PageHeading";
 import { DemoControls, SimulationBadge } from "../components/DemoControls";
 import { ExploreGuide } from "../guide/ExploreGuide";
+import { ServiceDashboardEntry } from "../service/ServiceIntegration";
 
 export function DashboardPage() {
   const data = useDemoData();
@@ -293,6 +294,7 @@ export function DashboardPage() {
           </section>
         </div>
       </div>
+      <ServiceDashboardEntry />
       <ExploreGuide />
       <details className="panel demo-disclosure" id="demo-controls">
         <summary>

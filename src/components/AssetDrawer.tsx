@@ -11,6 +11,7 @@ import { Link } from "react-router";
 import { useReviews } from "../reviews/ReviewProvider";
 import { useGuide } from "../guide/GuideProvider";
 import { EquipmentActivity } from "../activity/EquipmentActivity";
+import { ServiceAssetLinks } from "../service/ServiceComponents";
 
 export function AssetDrawer({
   asset,
@@ -321,6 +322,7 @@ export function AssetDrawer({
                 </div>
               ))}
           </details>
+          <ServiceAssetLinks assetId={asset.id} onNavigate={onClose}/>
           <EquipmentActivity assetId={asset.id} />
           <p className="drawer-disclaimer">
             In-progress engineering drafts: {relatedReviews.length}

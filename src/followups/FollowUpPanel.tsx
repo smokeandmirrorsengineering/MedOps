@@ -8,6 +8,7 @@ import { useFollowUps } from "./FollowUpProvider";
 import { useFollowUpSelection } from "./useFollowUpSelection";
 import { COMPLETION_LABEL, type FollowUp } from "./types";
 import type { ReviewSession, ReviewException } from "../reviews/types";
+import { FollowUpServiceLinks } from "../service/ServiceIntegration";
 
 export function FollowUpPanel() {
   const selection = useFollowUpSelection(),
@@ -304,6 +305,7 @@ function FollowUpEditor({
               )}
               {record && (
                 <>
+                  {record.assetId && <FollowUpServiceLinks record={record}/>}
                   <p className="review-small-note">
                     Actual creation {recordTime(record.createdAt)} · updated{" "}
                     {recordTime(record.updatedAt)}

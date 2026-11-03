@@ -24,6 +24,8 @@ export interface ServiceCase {
   quotations: Quotation[]; approvals: Approval[]; events: CaseEvent[];
 }
 export type CaseInput = Pick<ServiceCase, "assetId" | "title" | "problem" | "reportedAt" | "availability" | "responsible" | "provider" | "supplierReference" | "issueCategory" | "parts" | "blocker" | "engineeringNotes" | "reviewId" | "exceptionId" | "followUpId">;
+export const caseInputFields = ["assetId","title","problem","reportedAt","availability","responsible","provider","supplierReference","issueCategory","parts","blocker","engineeringNotes","reviewId","exceptionId","followUpId"] as const;
+export function caseInput(record:CaseInput):CaseInput {return Object.fromEntries(caseInputFields.map(key=>[key,record[key]])) as unknown as CaseInput;}
 export interface LifecycleStore { schemaVersion: 1; records: LifecycleRecord[] }
 export interface CaseStore { schemaVersion: 1; cases: ServiceCase[] }
 export interface ServiceClock { now(): string; id(): string }

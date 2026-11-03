@@ -5,6 +5,7 @@ import { openReviewIssues } from "../reviews/evidence";
 import { useFollowUps } from "../followups/FollowUpProvider";
 import { useFollowUpSelection } from "../followups/useFollowUpSelection";
 import { COMPLETION_LABEL } from "../followups/types";
+import { ReviewServiceLinks } from "../service/ServiceIntegration";
 import {
   ReviewHeader,
   ReviewNav,
@@ -99,6 +100,7 @@ export function ReviewIssuesPage() {
             <Link className="text-link" to={`/reviews/${review.id}/report`}>
               View submitted report · {review.id}
             </Link>
+            {exception.assetId && <ReviewServiceLinks assetId={exception.assetId} reviewId={review.id} exceptionId={exception.id}/>}
             <small>
               Actual review submission: {recordTime(review.submittedAt!)}
             </small>
