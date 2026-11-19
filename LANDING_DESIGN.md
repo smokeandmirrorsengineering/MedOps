@@ -1,5 +1,7 @@
 # Evidanor public site
 
+Latest presentation refinement: see [PUBLIC_SITE_REFINEMENT.md](PUBLIC_SITE_REFINEMENT.md) for the single homepage demo action, richer product/record explanations and the persistent route back from the workspace. The original design rationale below is retained for history.
+
 20 November update: the approved presentation is now divided into five public pages. `/` contains the product hero and three concise links to learn more; `/engineering-workflow`, `/service-coordination`, `/equipment` and `/explore-demo` contain the corresponding existing sections. Shared public navigation uses real routes, current-page indicators and a home link. Operational `/service` remains separate from public `/service-coordination`. See [PUBLIC_SITE_NAVIGATION.md](PUBLIC_SITE_NAVIGATION.md) for the current checks. The initial design rationale follows.
 
 Kind: software. Audience: hospital engineering leadership, biomedical engineers, facilities managers. Primary action: Explore Live Demo → `/dashboard`.

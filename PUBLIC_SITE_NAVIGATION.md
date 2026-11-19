@@ -1,5 +1,7 @@
 # Public site navigation update — 20 November 2026
 
+Subsequent refinement: [PUBLIC_SITE_REFINEMENT.md](PUBLIC_SITE_REFINEMENT.md) records the reduced calls to action, richer content and persistent workspace return link. Verification counts below describe the original page-splitting change.
+
 The public presentation now uses separate pages instead of one long page with section anchors. The existing visual direction, real product captures and synthetic-demo disclosures are retained.
 
 | Public page | Route | Content |
@@ -10,7 +12,7 @@ The public presentation now uses separate pages instead of one long page with se
 | Equipment | `/equipment` | Monitored/manual equipment distinction and compact stakeholder benefits |
 | Explore the demo | `/explore-demo` | Working dashboard, focused investigation and CT service entry points |
 
-All public pages share the header, footer, home link and **Explore Live Demo** action. Navigation identifies the current page. The mobile menu includes Home, closes on navigation and restores scrolling; page changes move focus to the new main content and scroll to the top. Page titles change with the destination. Each public page has one H1 and sequential heading levels.
+All public pages share the header, footer and home link. The homepage retains one **Explore Live Demo** action; context pages use specific destinations and the shared workspace utility link. Navigation identifies the current page. The mobile menu includes Home, closes on navigation and restores scrolling; page changes move focus to the new main content and scroll to the top. Page titles change with the destination. Each public page has one H1 and sequential heading levels.
 
 Public routes are declared in `src/landing/destinations.ts` and mounted outside AppLayout. Operational routes, providers, calculations, persistence, report/print code and styles remain intact. The landing styles load through a small lazy entry module; presentation components can be checked without loading CSS in the Node tests. No new dependency or project configuration change.
 

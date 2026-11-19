@@ -89,7 +89,7 @@ No telemetry evaluation, simulation behavior, review schema, validation rules, i
 
 ## Start locally
 
-The public site has separate Home (`/`), Engineering Workflow (`/engineering-workflow`), Service Coordination (`/service-coordination`), Equipment (`/equipment`) and Explore the Demo (`/explore-demo`) pages. **Explore Live Demo** opens `/dashboard`; the CT service example opens `/service/cases/SC-DEMO-CT-001`. All records remain synthetic and browser-local. Current navigation checks are recorded in [PUBLIC_SITE_NAVIGATION.md](PUBLIC_SITE_NAVIGATION.md); the original visual design and review remain in [LANDING_DESIGN.md](LANDING_DESIGN.md) and [LANDING_VERIFICATION.md](LANDING_VERIFICATION.md).
+The public site has separate Home (`/`), Engineering Workflow (`/engineering-workflow`), Service Coordination (`/service-coordination`), Equipment (`/equipment`) and Demo Guide (`/explore-demo`) pages. The homepage's single **Explore Live Demo** action opens `/dashboard`; a persistent **Back to website** link returns from every workspace page. The CT service example opens `/service/cases/SC-DEMO-CT-001`. All records remain synthetic and browser-local. Current presentation/navigation checks are in [PUBLIC_SITE_REFINEMENT.md](PUBLIC_SITE_REFINEMENT.md), with the earlier page split recorded in [PUBLIC_SITE_NAVIGATION.md](PUBLIC_SITE_NAVIGATION.md).
 
 Open PowerShell in `C:\Projects\MedOps`:
 

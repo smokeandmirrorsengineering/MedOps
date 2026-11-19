@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 import {
   Activity,
@@ -6,7 +6,6 @@ import {
   ArrowRight,
   ArrowUpRight,
   ClipboardCheck,
-  FileCheck2,
   ListChecks,
   Menu,
   Radio,
@@ -18,6 +17,7 @@ import {
 import { BrandMark } from "../components/BrandMark";
 import { registryAsset } from "../service/registry";
 import { landingDestinations, publicPages, type PublicPage } from "./destinations";
+import { HomeOverview, WorkflowDetails, ServiceDetails, EquipmentDetails, DemoDetails, RelatedPages } from "./ProductDetails";
 
 const workflow = [
   {
@@ -86,11 +86,11 @@ function Brand({ footer = false }: { footer?: boolean }) {
   );
 }
 
-function LandingNavigation() {
+function LandingNavigation({ page }: { page: PublicPage }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
 
-  useEffect(() => setMenuOpen(false), [pathname]);
+  useLayoutEffect(() => setMenuOpen(false), [pathname]);
   const menu = useRef<HTMLDivElement>(null);
   const toggle = useRef<HTMLButtonElement>(null);
 
@@ -153,7 +153,11 @@ function LandingNavigation() {
             <NavLink key={path} to={path} end>{label}</NavLink>
           ))}
         </nav>
-        <div className="landing-nav-action"><DemoButton /></div>
+        {page !== "home" && page !== "demo" && (
+          <Link className="landing-workspace-link" to={landingDestinations.dashboard}>
+            Open workspace <ArrowUpRight size={16} aria-hidden="true" />
+          </Link>
+        )}
         <button
           ref={toggle}
           className="landing-menu-toggle"
@@ -174,13 +178,6 @@ function LandingNavigation() {
               {publicPages.map(({ path, label }) => (
                 <NavLink key={path} to={path} end onClick={closeMenu}>{label}</NavLink>
               ))}
-              <Link
-                className="landing-button"
-                to={landingDestinations.dashboard}
-                onClick={closeMenu}
-              >
-                Explore Live Demo <ArrowUpRight size={17} />
-              </Link>
             </nav>
             <p>Synthetic equipment. Working engineering workflows.</p>
           </div>
@@ -384,8 +381,8 @@ function DemoPage() {
     <section className="landing-section landing-demo" id="demo" aria-labelledby="demo-title">
           <div className="landing-wrap">
             <div className="landing-section-heading">
-              <h1 id="demo-title">Explore the working demo.</h1>
-              <p>Choose a starting point. Each path opens the actual application.</p>
+              <h1 id="demo-title">Choose your route<br />through the demo.</h1>
+              <p>Start with an equipment condition, follow an investigation or examine a service decision. Each route opens the working application.</p>
             </div>
             <div className="landing-demo-grid">
               {demoPaths.map(({ title, description, destination, icon: Icon, hint }) => (
@@ -402,36 +399,10 @@ function DemoPage() {
   );
 }
 
-function HomeOverview() {
-  const paths = [
-    { title: "Engineering workflow", description: "See how equipment evidence, investigations and follow-up records stay connected.", path: "/engineering-workflow", action: "See the workflow", icon: ClipboardCheck },
-    { title: "Service coordination", description: "Follow a fictional CT scanner case through its quotation and recorded service decisions.", path: "/service-coordination", action: "View the service example", icon: Wrench },
-    { title: "Equipment coverage", description: "Understand the distinction between simulated monitoring and manually managed equipment.", path: "/equipment", action: "Compare equipment contexts", icon: Radio },
-  ];
-  return (
-    <section className="landing-section landing-demo" aria-labelledby="overview-title">
-      <div className="landing-wrap">
-        <div className="landing-section-heading">
-          <h2 id="overview-title">A closer look at Evidanor.</h2>
-          <p>Choose the part of hospital engineering you want to explore.</p>
-        </div>
-        <div className="landing-demo-grid">
-          {paths.map(({ title, description, path, action, icon: Icon }) => (
-            <Link className="landing-demo-card" key={path} to={path}>
-              <div className="landing-demo-card-top"><Icon size={26} strokeWidth={1.5} aria-hidden="true" /><ArrowUpRight size={19} aria-hidden="true" /></div>
-              <h3>{title}</h3><p>{description}</p>
-              <span>{action} <ArrowRight size={15} aria-hidden="true" /></span>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export default function LandingPage({ page = "home" }: { page?: PublicPage }) {
   const main = useRef<HTMLElement>(null);
   const previousPage = useRef(page);
+  const { key: locationKey } = useLocation();
 
   useEffect(() => {
     document.body.classList.add("evidanor-landing-view");
@@ -443,24 +414,27 @@ export default function LandingPage({ page = "home" }: { page?: PublicPage }) {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     if (previousPage.current !== page) main.current?.focus({ preventScroll: true });
     previousPage.current = page;
-  }, [page]);
+  }, [page, locationKey]);
 
   return (
     <div className={"evidanor-landing" + (page === "home" ? "" : " landing-inner-page")} id="top">
-      <LandingNavigation />
+      <LandingNavigation page={page} />
       <main className="landing-main" id="main-content" tabIndex={-1} ref={main}>
+        {page !== "home" && (
+          <nav className="landing-wrap landing-breadcrumb" aria-label="Breadcrumb">
+            <Link to="/">Home</Link><span aria-hidden="true">/</span>
+            <span aria-current="page">{publicPages.find((entry) => entry.page === page)!.label}</span>
+          </nav>
+        )}
         {page === "home" && <><HomeHero /><HomeOverview /></>}
-        {page === "workflow" && <WorkflowPage />}
-        {page === "service" && <ServicePage />}
-        {page === "equipment" && <EquipmentPage />}
-        {page === "demo" && <DemoPage />}
+        {page === "workflow" && <><WorkflowPage /><WorkflowDetails /></>}
+        {page === "service" && <><ServicePage /><ServiceDetails /></>}
+        {page === "equipment" && <><EquipmentPage /><EquipmentDetails /></>}
+        {page === "demo" && <><DemoPage /><DemoDetails /></>}
+        {page !== "home" && <RelatedPages page={page} />}
       </main>
       <footer className="landing-footer">
         <div className="landing-wrap">
-          <div className="landing-closing">
-            <div><FileCheck2 size={25} strokeWidth={1.5} aria-hidden="true" /><h2>See Evidanor in operation.</h2></div>
-            <DemoButton />
-          </div>
           <div className="landing-footer-bottom">
             <div><Brand footer /><p>Infrastructure intelligence, grounded in evidence.</p></div>
             <p className="landing-disclosure">

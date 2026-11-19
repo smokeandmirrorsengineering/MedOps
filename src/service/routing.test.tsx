@@ -30,3 +30,14 @@ test("public demo entry points resolve to real equipment, investigation and serv
   assert.ok(ct.includes("Not connected / Manually managed"));
   assert.ok(ct.includes("Pending"));
 });
+
+test("workspace pages expose a direct return to the public website", () => {
+  for (const path of ["/dashboard", "/assets", "/alerts", "/reviews", "/service/cases/SC-DEMO-CT-001", "/service/cases/SC-DEMO-CT-001/summary"]) {
+    const html = route(path);
+    const start = html.indexOf('aria-label="Website navigation"');
+    assert.ok(start > 0, path);
+    const websiteNavigation = html.slice(start, html.indexOf("</nav>", start));
+    assert.ok(websiteNavigation.includes('href="/"'), path);
+    assert.ok(websiteNavigation.includes("Back to website"), path);
+  }
+});

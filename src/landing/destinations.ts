@@ -11,7 +11,7 @@ export const publicPages = [
   { page: "workflow", path: "/engineering-workflow", label: "Engineering workflow", title: "Engineering Workflow | Evidanor" },
   { page: "service", path: "/service-coordination", label: "Service coordination", title: "Service Coordination | Evidanor" },
   { page: "equipment", path: "/equipment", label: "Equipment", title: "Equipment Coverage | Evidanor" },
-  { page: "demo", path: "/explore-demo", label: "Explore the demo", title: "Explore the Demo | Evidanor" },
+  { page: "demo", path: "/explore-demo", label: "Demo guide", title: "Demo Guide | Evidanor" },
 ] as const;
 
 export type PublicPage = (typeof publicPages)[number]["page"];
