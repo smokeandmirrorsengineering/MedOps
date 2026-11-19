@@ -89,7 +89,7 @@ No telemetry evaluation, simulation behavior, review schema, validation rules, i
 
 ## Start locally
 
-The public landing page at `/` presents genuine application previews, the engineering workflow and three working demo entry points. **Explore Live Demo** opens `/dashboard`; the CT service example opens `/service/cases/SC-DEMO-CT-001`. All records remain synthetic and browser-local. Design rationale and visual verification are recorded in [LANDING_DESIGN.md](LANDING_DESIGN.md) and [LANDING_VERIFICATION.md](LANDING_VERIFICATION.md).
+The public site has separate Home (`/`), Engineering Workflow (`/engineering-workflow`), Service Coordination (`/service-coordination`), Equipment (`/equipment`) and Explore the Demo (`/explore-demo`) pages. **Explore Live Demo** opens `/dashboard`; the CT service example opens `/service/cases/SC-DEMO-CT-001`. All records remain synthetic and browser-local. Current navigation checks are recorded in [PUBLIC_SITE_NAVIGATION.md](PUBLIC_SITE_NAVIGATION.md); the original visual design and review remain in [LANDING_DESIGN.md](LANDING_DESIGN.md) and [LANDING_VERIFICATION.md](LANDING_VERIFICATION.md).
 
 Open PowerShell in `C:\Projects\MedOps`:
 
@@ -113,7 +113,11 @@ The project was built using Node 24.22.1. Exact installed dependency versions ar
 
 | Address          | Purpose                                                                                                      |
 | ---------------- | ------------------------------------------------------------------------------------------------------------ |
-| `/`              | Public product landing page with dashboard, investigation and CT service demo links                           |
+| `/`              | Public homepage with product preview and links to the separate public pages                                    |
+| `/engineering-workflow` | Public explanation of abnormal conditions, investigation, follow-up and re-verification |
+| `/service-coordination` | Public CT service example with a link to the actual operational case |
+| `/equipment` | Public monitored/manual equipment coverage and stakeholder overview |
+| `/explore-demo` | Three guided entry points into the actual working application |
 | `/dashboard`     | Engineering Overview: condition strip, prioritized equipment queue, affected systems, next steps and collapsible Demo Controls |
 | `/assets`        | Full 50-asset inventory with search, filters, pagination and equipment details                               |
 | `/alerts`        | Active seed/scenario alerts, resolved simulated alerts and recorded simulation history                       |

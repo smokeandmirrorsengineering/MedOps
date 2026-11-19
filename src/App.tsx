@@ -15,14 +15,17 @@ import { LifecycleRegisterPage, LifecycleDetailPage } from "./service/LifecycleP
 import { NewServiceCasePage } from "./service/CaseForms";
 import { ServiceCasePage } from "./service/ServiceCasePage";
 import { ServiceSummaryPage } from "./service/ServiceSummaryPage";
+import { publicPages } from "./landing/destinations";
 
-const LandingPage = lazy(() => import("./landing/LandingPage"));
+const LandingPage = lazy(() => import("./landing/LandingEntry"));
 
 export default function App() {
   return (
     <Suspense fallback={<div role="status" style={{ padding: "32px" }}>Loading Evidanor…</div>}>
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      {publicPages.map(({ path, page }) => (
+        <Route key={path} path={path} element={<LandingPage page={page} />} />
+      ))}
       <Route element={<AppLayout />}>
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="assets" element={<AssetsPage />} />

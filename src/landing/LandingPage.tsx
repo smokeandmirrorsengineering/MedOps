@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
+import { Link, NavLink, useLocation } from "react-router";
 import {
   Activity,
   AirVent,
-  ArrowDown,
   ArrowRight,
   ArrowUpRight,
   ClipboardCheck,
@@ -18,8 +17,7 @@ import {
 } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import { registryAsset } from "../service/registry";
-import { landingDestinations } from "./destinations";
-import "./landing.css";
+import { landingDestinations, publicPages, type PublicPage } from "./destinations";
 
 const workflow = [
   {
@@ -81,15 +79,18 @@ function DemoButton() {
 
 function Brand({ footer = false }: { footer?: boolean }) {
   return (
-    <a className="landing-brand" href="#top" aria-label="Evidanor home">
+    <Link className="landing-brand" to="/" aria-label="Evidanor home">
       <BrandMark size={footer ? 32 : 30} />
       <span>Evidanor</span>
-    </a>
+    </Link>
   );
 }
 
 function LandingNavigation() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
+
+  useEffect(() => setMenuOpen(false), [pathname]);
   const menu = useRef<HTMLDivElement>(null);
   const toggle = useRef<HTMLButtonElement>(null);
 
@@ -148,9 +149,9 @@ function LandingNavigation() {
         </a>
         <Brand />
         <nav className="landing-desktop-links" aria-label="Main navigation">
-          <a href="#workflow">Engineering workflow</a>
-          <a href="#service">Service coordination</a>
-          <a href="#demo">Explore the demo</a>
+          {publicPages.filter(({ page }) => page !== "home").map(({ path, label }) => (
+            <NavLink key={path} to={path} end>{label}</NavLink>
+          ))}
         </nav>
         <div className="landing-nav-action"><DemoButton /></div>
         <button
@@ -170,10 +171,9 @@ function LandingNavigation() {
             ref={menu}
           >
             <nav aria-label="Mobile navigation">
-              <a href="#workflow" onClick={closeMenu}>Engineering workflow</a>
-              <a href="#service" onClick={closeMenu}>Service coordination</a>
-              <a href="#equipment" onClick={closeMenu}>Equipment context</a>
-              <a href="#demo" onClick={closeMenu}>Explore the demo</a>
+              {publicPages.map(({ path, label }) => (
+                <NavLink key={path} to={path} end onClick={closeMenu}>{label}</NavLink>
+              ))}
               <Link
                 className="landing-button"
                 to={landingDestinations.dashboard}
@@ -208,18 +208,9 @@ function EquipmentLink({ assetId }: { assetId: string }) {
   );
 }
 
-export default function LandingPage() {
-  useEffect(() => {
-    document.title = "Evidanor | Hospital Engineering Operations";
-    document.body.classList.add("evidanor-landing-view");
-    return () => document.body.classList.remove("evidanor-landing-view");
-  }, []);
-
+function HomeHero() {
   return (
-    <div className="evidanor-landing" id="top">
-      <LandingNavigation />
-      <main className="landing-main" id="main-content" tabIndex={-1}>
-        <section className="landing-hero" aria-labelledby="landing-hero-title" data-enter>
+    <section className="landing-hero" aria-labelledby="landing-hero-title" data-enter>
           <div className="landing-wrap">
             <div className="landing-hero-copy">
               <p className="landing-eyebrow"><span /> Synthetic product demo</p>
@@ -230,9 +221,9 @@ export default function LandingPage() {
               </p>
               <div className="landing-hero-actions">
                 <DemoButton />
-                <a className="landing-text-link" href="#workflow">
-                  See the engineering workflow <ArrowDown size={16} aria-hidden="true" />
-                </a>
+                <Link className="landing-text-link" to="/engineering-workflow">
+                  See the engineering workflow <ArrowRight size={16} aria-hidden="true" />
+                </Link>
               </div>
               <p className="landing-hero-detail">
                 Explore 50 synthetic monitored assets and a fictional CT service case.
@@ -258,11 +249,15 @@ export default function LandingPage() {
             </Link>
           </div>
         </section>
+  );
+}
 
-        <section className="landing-section landing-workflow" id="workflow" aria-labelledby="workflow-title">
+function WorkflowPage() {
+  return (
+    <section className="landing-section landing-workflow" id="workflow" aria-labelledby="workflow-title">
           <div className="landing-wrap">
             <div className="landing-section-heading">
-              <h2 id="workflow-title">From an equipment issue<br />to a documented next step.</h2>
+              <h1 id="workflow-title">From an equipment issue<br />to a documented next step.</h1>
               <p>Keep the condition, the engineering assessment and the action connected to their evidence.</p>
             </div>
             <div className="landing-workflow-grid">
@@ -273,7 +268,7 @@ export default function LandingPage() {
                       <div className="landing-workflow-marker" aria-hidden="true"><Icon size={20} /></div>
                       <div>
                         <span className="landing-step-label">Step {index + 1}</span>
-                        <h3>{title}</h3>
+                        <h2>{title}</h2>
                         <p>{description}</p>
                       </div>
                     </li>
@@ -304,12 +299,16 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+  );
+}
 
-        <section className="landing-section landing-service" id="service" aria-labelledby="service-title">
+function ServicePage() {
+  return (
+    <section className="landing-section landing-service" id="service" aria-labelledby="service-title">
           <div className="landing-wrap landing-service-grid">
             <div className="landing-service-copy">
               <p className="landing-eyebrow">Service Operations</p>
-              <h2 id="service-title">Service decisions,<br />with the full context.</h2>
+              <h1 id="service-title">Service decisions,<br />with the full context.</h1>
               <p>
                 Follow the fictional CT scanner case through recorded coverage,
                 a supplier quotation and a pending administrative decision.
@@ -343,48 +342,56 @@ export default function LandingPage() {
             </Link>
           </div>
         </section>
+  );
+}
 
-        <section className="landing-section landing-equipment" id="equipment" aria-labelledby="equipment-title">
+function EquipmentPage() {
+  return (
+    <section className="landing-section landing-equipment" id="equipment" aria-labelledby="equipment-title">
           <div className="landing-wrap">
             <div className="landing-section-heading">
-              <h2 id="equipment-title">Equipment context<br />for every team.</h2>
+              <h1 id="equipment-title">Equipment context<br />for every team.</h1>
               <p>See simulated monitoring evidence alongside manually documented service records.</p>
             </div>
             <div className="landing-equipment-grid">
               <article className="landing-equipment-card">
                 <div className="landing-card-icon"><Radio size={23} strokeWidth={1.6} aria-hidden="true" /></div>
-                <h3>Monitored infrastructure</h3>
+                <h2>Monitored infrastructure</h2>
                 <p>Review simulated readings, condition indicators and alerts. Open equipment evidence to begin an investigation.</p>
                 <EquipmentLink assetId="AHU-OT-01" />
                 <EquipmentLink assetId="MG-O2-01" />
               </article>
               <article className="landing-equipment-card">
                 <div className="landing-card-icon"><Wrench size={23} strokeWidth={1.6} aria-hidden="true" /></div>
-                <h3>Manually managed equipment</h3>
+                <h2>Manually managed equipment</h2>
                 <p>Document coverage, quotations, service activity and decisions for CT and MRI equipment with no connected telemetry.</p>
                 <EquipmentLink assetId="CT-RAD-01" />
                 <EquipmentLink assetId="MRI-RAD-01" />
               </article>
             </div>
             <div className="landing-stakeholders">
-              <div><h3>Biomedical engineers</h3><p>Equipment records, investigation evidence and a traceable service history.</p></div>
-              <div><h3>Facilities managers</h3><p>Abnormal conditions, outstanding actions and the people responsible for follow-up.</p></div>
-              <div><h3>Hospital administrators</h3><p>Open engineering issues, pending service decisions and printable summaries.</p></div>
+              <div><h2>Biomedical engineers</h2><p>Equipment records, investigation evidence and a traceable service history.</p></div>
+              <div><h2>Facilities managers</h2><p>Abnormal conditions, outstanding actions and the people responsible for follow-up.</p></div>
+              <div><h2>Hospital administrators</h2><p>Open engineering issues, pending service decisions and printable summaries.</p></div>
             </div>
           </div>
         </section>
+  );
+}
 
-        <section className="landing-section landing-demo" id="demo" aria-labelledby="demo-title">
+function DemoPage() {
+  return (
+    <section className="landing-section landing-demo" id="demo" aria-labelledby="demo-title">
           <div className="landing-wrap">
             <div className="landing-section-heading">
-              <h2 id="demo-title">Explore the working demo.</h2>
+              <h1 id="demo-title">Explore the working demo.</h1>
               <p>Choose a starting point. Each path opens the actual application.</p>
             </div>
             <div className="landing-demo-grid">
               {demoPaths.map(({ title, description, destination, icon: Icon, hint }) => (
                 <Link className="landing-demo-card" key={title} to={destination}>
                   <div className="landing-demo-card-top"><Icon size={26} strokeWidth={1.5} aria-hidden="true" /><ArrowUpRight size={19} aria-hidden="true" /></div>
-                  <h3>{title}</h3>
+                  <h2>{title}</h2>
                   <p>{description}</p>
                   <span>{hint} <ArrowRight size={15} aria-hidden="true" /></span>
                 </Link>
@@ -392,8 +399,62 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-      </main>
+  );
+}
 
+function HomeOverview() {
+  const paths = [
+    { title: "Engineering workflow", description: "See how equipment evidence, investigations and follow-up records stay connected.", path: "/engineering-workflow", action: "See the workflow", icon: ClipboardCheck },
+    { title: "Service coordination", description: "Follow a fictional CT scanner case through its quotation and recorded service decisions.", path: "/service-coordination", action: "View the service example", icon: Wrench },
+    { title: "Equipment coverage", description: "Understand the distinction between simulated monitoring and manually managed equipment.", path: "/equipment", action: "Compare equipment contexts", icon: Radio },
+  ];
+  return (
+    <section className="landing-section landing-demo" aria-labelledby="overview-title">
+      <div className="landing-wrap">
+        <div className="landing-section-heading">
+          <h2 id="overview-title">A closer look at Evidanor.</h2>
+          <p>Choose the part of hospital engineering you want to explore.</p>
+        </div>
+        <div className="landing-demo-grid">
+          {paths.map(({ title, description, path, action, icon: Icon }) => (
+            <Link className="landing-demo-card" key={path} to={path}>
+              <div className="landing-demo-card-top"><Icon size={26} strokeWidth={1.5} aria-hidden="true" /><ArrowUpRight size={19} aria-hidden="true" /></div>
+              <h3>{title}</h3><p>{description}</p>
+              <span>{action} <ArrowRight size={15} aria-hidden="true" /></span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default function LandingPage({ page = "home" }: { page?: PublicPage }) {
+  const main = useRef<HTMLElement>(null);
+  const previousPage = useRef(page);
+
+  useEffect(() => {
+    document.body.classList.add("evidanor-landing-view");
+    return () => document.body.classList.remove("evidanor-landing-view");
+  }, []);
+
+  useEffect(() => {
+    document.title = publicPages.find((entry) => entry.page === page)!.title;
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    if (previousPage.current !== page) main.current?.focus({ preventScroll: true });
+    previousPage.current = page;
+  }, [page]);
+
+  return (
+    <div className={"evidanor-landing" + (page === "home" ? "" : " landing-inner-page")} id="top">
+      <LandingNavigation />
+      <main className="landing-main" id="main-content" tabIndex={-1} ref={main}>
+        {page === "home" && <><HomeHero /><HomeOverview /></>}
+        {page === "workflow" && <WorkflowPage />}
+        {page === "service" && <ServicePage />}
+        {page === "equipment" && <EquipmentPage />}
+        {page === "demo" && <DemoPage />}
+      </main>
       <footer className="landing-footer">
         <div className="landing-wrap">
           <div className="landing-closing">
@@ -408,7 +469,12 @@ export default function LandingPage() {
               entered in the demo are stored in your browser.
             </p>
           </div>
-          <div className="landing-footer-legal"><span>© {new Date().getFullYear()} Evidanor</span><Link to="/reviews">Engineering Reviews <ArrowUpRight size={14} /></Link><Link to="/service">Service Operations <ArrowUpRight size={14} /></Link></div>
+          <div className="landing-footer-legal">
+            <span>© {new Date().getFullYear()} Evidanor</span>
+            <nav aria-label="Footer navigation">
+              {publicPages.map(({ path, label }) => <NavLink key={path} to={path} end>{label}</NavLink>)}
+            </nav>
+          </div>
         </div>
       </footer>
     </div>

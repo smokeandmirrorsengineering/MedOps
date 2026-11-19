@@ -1,5 +1,7 @@
 GATE: OPEN 21 (rounds used up)
 
+**Historical report:** this records the initial single-page implementation on 19 November. The 20 November multi-page navigation update is verified separately in [PUBLIC_SITE_NAVIGATION.md](PUBLIC_SITE_NAVIGATION.md). The gate status and performance samples below were not rerun or claimed as current results for the navigation update.
+
 # Public landing page verification
 
 Verified locally on 19 November 2026. Nothing was pushed, published or deployed.
