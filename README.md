@@ -89,6 +89,8 @@ No telemetry evaluation, simulation behavior, review schema, validation rules, i
 
 ## Start locally
 
+The public landing page at `/` presents genuine application previews, the engineering workflow and three working demo entry points. **Explore Live Demo** opens `/dashboard`; the CT service example opens `/service/cases/SC-DEMO-CT-001`. All records remain synthetic and browser-local. Design rationale and visual verification are recorded in [LANDING_DESIGN.md](LANDING_DESIGN.md) and [LANDING_VERIFICATION.md](LANDING_VERIFICATION.md).
+
 Open PowerShell in `C:\Projects\MedOps`:
 
 ```powershell
@@ -111,7 +113,7 @@ The project was built using Node 24.22.1. Exact installed dependency versions ar
 
 | Address          | Purpose                                                                                                      |
 | ---------------- | ------------------------------------------------------------------------------------------------------------ |
-| `/`              | Redirects to Dashboard                                                                                       |
+| `/`              | Public product landing page with dashboard, investigation and CT service demo links                           |
 | `/dashboard`     | Engineering Overview: condition strip, prioritized equipment queue, affected systems, next steps and collapsible Demo Controls |
 | `/assets`        | Full 50-asset inventory with search, filters, pagination and equipment details                               |
 | `/alerts`        | Active seed/scenario alerts, resolved simulated alerts and recorded simulation history                       |

@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from "react-router";
+import { lazy, Suspense } from "react";
+import { Route, Routes } from "react-router";
 import { AppLayout } from "./layout/AppLayout";
 import { DashboardPage } from "./pages/DashboardPage";
 import { AssetsPage } from "./pages/AssetsPage";
@@ -15,11 +16,14 @@ import { NewServiceCasePage } from "./service/CaseForms";
 import { ServiceCasePage } from "./service/ServiceCasePage";
 import { ServiceSummaryPage } from "./service/ServiceSummaryPage";
 
+const LandingPage = lazy(() => import("./landing/LandingPage"));
+
 export default function App() {
   return (
+    <Suspense fallback={<div role="status" style={{ padding: "32px" }}>Loading Evidanor…</div>}>
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route element={<AppLayout />}>
-        <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="assets" element={<AssetsPage />} />
         <Route path="alerts" element={<AlertsPage />} />
@@ -38,6 +42,7 @@ export default function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
+    </Suspense>
   );
 }
 
