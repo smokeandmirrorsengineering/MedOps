@@ -9,6 +9,35 @@ import { ReviewProvider } from "../reviews/ReviewProvider";
 import { FollowUpProvider } from "../followups/FollowUpProvider";
 import { GuideProvider } from "../guide/GuideProvider";
 import { ServiceProvider } from "./ServiceProvider";
+import { landingDestinations } from "../landing/destinations";
 function route(path:string){return renderToStaticMarkup(<MemoryRouter initialEntries={[path]}><DemoDataProvider><ReviewProvider><FollowUpProvider><ServiceProvider clock={{now:()=>"2026-11-04T04:00:00.000Z",id:()=>"routing-test"}}><GuideProvider><App/></GuideProvider></ServiceProvider></FollowUpProvider></ReviewProvider></DemoDataProvider></MemoryRouter>);}
 test("service deep links resolve to the intended pages without colliding with the equipment drawer",()=>{for(const [path,text] of [["/service","Cases Requiring Action"],["/service/equipment?type=manual","2 matching equipment records"],["/service/equipment/CT-RAD-01","No connected monitoring is configured"],["/service/cases/new?equipment=CT-RAD-01","Create service case"],["/service/cases/SC-DEMO-CT-001","Quotation &amp; decision"],["/service/cases/SC-DEMO-CT-001/summary","SERVICE CASE SUMMARY"]]){const html=route(path);assert.ok(html.includes(text),path);assert.equal(html.includes('role="dialog"'),false,path);}});
 test("missing service identities give recoverable states and existing monitoring routes retain 50 assets",()=>{assert.ok(route("/service/cases/SC-MISSING").includes("Service case unavailable"));assert.ok(route("/service/equipment/MISSING").includes("Equipment record unavailable"));const html=route("/dashboard");assert.ok(html.includes("Total fleet"));assert.ok(html.includes("50"));assert.ok(html.includes("Explore Evidanor"));});
+
+test("public demo entry points resolve to real equipment, investigation and service records", () => {
+  const dashboard = route(landingDestinations.dashboard);
+  assert.ok(dashboard.includes("Engineering Overview"));
+  assert.ok(dashboard.includes("Total fleet"));
+  const investigation = route(landingDestinations.investigation);
+  assert.ok(investigation.includes("MG-O2-01"));
+  assert.ok(investigation.includes("Focused Equipment Investigation"));
+  const evidence = route(landingDestinations.evidence);
+  assert.ok(evidence.includes('role="dialog"'));
+  assert.ok(evidence.includes("MG-O2-01"));
+  assert.ok(evidence.includes("2.1"));
+  const ct = route(landingDestinations.ctCase);
+  assert.ok(ct.includes("DEMO-Q-CT-2026-01"));
+  assert.ok(ct.includes("Not connected / Manually managed"));
+  assert.ok(ct.includes("Pending"));
+});
+
+test("workspace pages expose a direct return to the public website", () => {
+  for (const path of ["/dashboard", "/assets", "/alerts", "/reviews", "/service/cases/SC-DEMO-CT-001", "/service/cases/SC-DEMO-CT-001/summary"]) {
+    const html = route(path);
+    const start = html.indexOf('aria-label="Website navigation"');
+    assert.ok(start > 0, path);
+    const websiteNavigation = html.slice(start, html.indexOf("</nav>", start));
+    assert.ok(websiteNavigation.includes('href="/"'), path);
+    assert.ok(websiteNavigation.includes("Back to website"), path);
+  }
+});

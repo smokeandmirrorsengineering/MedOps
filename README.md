@@ -89,6 +89,8 @@ No telemetry evaluation, simulation behavior, review schema, validation rules, i
 
 ## Start locally
 
+The public site has separate Home (`/`), Engineering Workflow (`/engineering-workflow`), Service Coordination (`/service-coordination`), Equipment (`/equipment`) and Demo Guide (`/explore-demo`) pages. The homepage's single **Explore Live Demo** action opens `/dashboard`; a persistent **Back to website** link returns from every workspace page. The CT service example opens `/service/cases/SC-DEMO-CT-001`. All records remain synthetic and browser-local. Current presentation/navigation checks are in [PUBLIC_SITE_REFINEMENT.md](PUBLIC_SITE_REFINEMENT.md), with the earlier page split recorded in [PUBLIC_SITE_NAVIGATION.md](PUBLIC_SITE_NAVIGATION.md).
+
 Open PowerShell in `C:\Projects\MedOps`:
 
 ```powershell
@@ -111,7 +113,11 @@ The project was built using Node 24.22.1. Exact installed dependency versions ar
 
 | Address          | Purpose                                                                                                      |
 | ---------------- | ------------------------------------------------------------------------------------------------------------ |
-| `/`              | Redirects to Dashboard                                                                                       |
+| `/`              | Public homepage with product preview and links to the separate public pages                                    |
+| `/engineering-workflow` | Public explanation of abnormal conditions, investigation, follow-up and re-verification |
+| `/service-coordination` | Public CT service example with a link to the actual operational case |
+| `/equipment` | Public monitored/manual equipment coverage and stakeholder overview |
+| `/explore-demo` | Three guided entry points into the actual working application |
 | `/dashboard`     | Engineering Overview: condition strip, prioritized equipment queue, affected systems, next steps and collapsible Demo Controls |
 | `/assets`        | Full 50-asset inventory with search, filters, pagination and equipment details                               |
 | `/alerts`        | Active seed/scenario alerts, resolved simulated alerts and recorded simulation history                       |

@@ -13,6 +13,7 @@ import "./reviews/report.css";
 import "./enterprise.css";
 import "./operational.css";
 import "./service/service.css";
+import "./layout/workspace-navigation.css";
 
 // Commit URL-driven form updates immediately, including consecutive filter changes.
 ReactDOM.createRoot(document.getElementById("root")!).render(

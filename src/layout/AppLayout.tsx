@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import {
   Bell,
+  ArrowLeft,
   Box,
   Building2,
   Check,
@@ -186,6 +187,12 @@ export function AppLayout() {
         </div>
       </aside>
       <div className="main-shell">
+        <nav className="workspace-contextbar" aria-label="Website navigation">
+          <Link to="/" onClick={() => setMobileNav(false)}>
+            <ArrowLeft size={16} aria-hidden="true" /> Back to website
+          </Link>
+          <span>Demo workspace</span>
+        </nav>
         <header className="topbar">
           <div className="hospital">
             <button

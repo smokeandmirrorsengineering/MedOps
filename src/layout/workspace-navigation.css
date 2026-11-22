@@ -1,0 +1,29 @@
+.workspace-contextbar {
+  position: sticky;
+  top: 0;
+  z-index: 25;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 32px;
+  background: #edf5f5;
+  border-bottom: 1px solid #d5e4e5;
+  color: #425969;
+  font-size: 12px;
+}
+.workspace-contextbar a {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  color: #0b6570;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.workspace-contextbar a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.workspace-contextbar a:focus-visible { outline: 2px solid #0b6570; outline-offset: -2px; }
+@media (max-width: 760px) { .workspace-contextbar { padding: 0 16px; } }
+@media print { .workspace-contextbar { display: none !important; } }
